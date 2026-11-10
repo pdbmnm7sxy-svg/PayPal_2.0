@@ -1,0 +1,316 @@
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Payment, PaymentStatus } from '../entities/payment.entity';
+import { SettlementService } from '../settlement/settlement.service';
+import { FabricService } from '../fabric/fabric.service';
+
+@Injectable()
+export class SeedService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(SeedService.name);
+
+  constructor(
+    @InjectRepository(Payment)
+    private paymentRepo: Repository<Payment>,
+    private settlementService: SettlementService,
+    private fabricService: FabricService,
+  ) {}
+
+  async onApplicationBootstrap() {
+    await this.settlementService.seedBanksIfEmpty();
+    await this.seedPaymentsIfEmpty();
+  }
+
+  async seedPaymentsIfEmpty() {
+    const count = await this.paymentRepo.count();
+    if (count > 0) {
+      return;
+    }
+
+    this.logger.log('Seeding initial realistic cross-border payment records for hackathon demo...');
+
+    const samplePayments: Partial<Payment>[] = [
+      {
+        reference: 'TX-2026-USD-EUR-8812',
+        senderName: 'Apex Logistics Inc.',
+        senderBank: 'GSB_US',
+        senderCountry: 'US',
+        receiverName: 'Bavaria Industrie AG',
+        receiverBank: 'EUROT_DE',
+        receiverCountry: 'DE',
+        amount: 85000.0,
+        currency: 'USD',
+        targetCurrency: 'EUR',
+        exchangeRate: 0.92,
+        targetAmount: 78200.0,
+        status: PaymentStatus.RECONCILED,
+        fraudScore: 0.00018,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([{ feature: 'V14', value: 0.28, significance: 'MODERATE', direction: 'POSITIVE' }]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'CLEARED',
+        complianceFlagsJson: JSON.stringify([]),
+        paypalOrderId: 'ORD-SANDBOX-88120',
+        paypalCaptureId: 'CAP-SANDBOX-88120',
+        paypalStatus: 'COMPLETED',
+        fundingMode: 'PAYPAL_SANDBOX',
+        selectedRouteJson: JSON.stringify(['GSB_US', 'INT_LDN', 'EUROT_DE']),
+        routeCostUSD: 14.8,
+        estimatedMinutes: 35,
+        routeReasoning: 'London Intermediary selected: Minimized FX spread by $18.50 over direct corridor.',
+        settlementTxRef: 'SETTLE-FED-20261108-99120',
+        settledAt: new Date(Date.now() - 86400000 * 2),
+        reconciledAt: new Date(Date.now() - 86400000 * 2 + 1800000),
+      },
+      {
+        reference: 'TX-2026-EUR-SGD-4419',
+        senderName: 'Nordic CleanEnergy SA',
+        senderBank: 'EUROT_DE',
+        senderCountry: 'DE',
+        receiverName: 'Marina Bay Renewables Pte',
+        receiverBank: 'PACIFIC_SG',
+        receiverCountry: 'SG',
+        amount: 120000.0,
+        currency: 'EUR',
+        targetCurrency: 'SGD',
+        exchangeRate: 1.462,
+        targetAmount: 175440.0,
+        status: PaymentStatus.SETTLED,
+        fraudScore: 0.00035,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'CLEARED',
+        complianceFlagsJson: JSON.stringify([]),
+        paypalOrderId: 'ORD-SANDBOX-44190',
+        paypalCaptureId: 'CAP-SANDBOX-44190',
+        paypalStatus: 'COMPLETED',
+        fundingMode: 'PAYPAL_SANDBOX',
+        selectedRouteJson: JSON.stringify(['EUROT_DE', 'INT_LDN', 'PACIFIC_SG']),
+        routeCostUSD: 24.5,
+        estimatedMinutes: 50,
+        routeReasoning: 'Commonwealth sterling hub optimal: balanced time and correspondent fees.',
+        settlementTxRef: 'SETTLE-TARGET2-20261109-44190',
+        settledAt: new Date(Date.now() - 86400000),
+      },
+      {
+        reference: 'TX-2026-SGD-USD-7714',
+        senderName: 'SingaTrade Commodities',
+        senderBank: 'PACIFIC_SG',
+        senderCountry: 'SG',
+        receiverName: 'Pacific Rim Importers',
+        receiverBank: 'GSB_US',
+        receiverCountry: 'US',
+        amount: 250000.0,
+        currency: 'SGD',
+        targetCurrency: 'USD',
+        exchangeRate: 0.743,
+        targetAmount: 185750.0,
+        status: PaymentStatus.FUNDED_PAYPAL,
+        fraudScore: 0.00042,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'CLEARED',
+        complianceFlagsJson: JSON.stringify([]),
+        paypalOrderId: 'ORD-SANDBOX-77140',
+        paypalCaptureId: 'CAP-SANDBOX-77140',
+        paypalStatus: 'COMPLETED',
+        fundingMode: 'PAYPAL_SANDBOX',
+        selectedRouteJson: JSON.stringify(['PACIFIC_SG', 'INT_TOK', 'GSB_US']),
+        routeCostUSD: 32.0,
+        estimatedMinutes: 43,
+        routeReasoning: 'Tokyo hub selected: Asian currency clearing express link.',
+      },
+      {
+        reference: 'TX-2026-USD-SGD-9931',
+        senderName: 'Pacific Rim Importers',
+        senderBank: 'GSB_US',
+        senderCountry: 'US',
+        receiverName: 'SingaTrade Commodities',
+        receiverBank: 'PACIFIC_SG',
+        receiverCountry: 'SG',
+        amount: 42000.0,
+        currency: 'USD',
+        targetCurrency: 'SGD',
+        exchangeRate: 1.345,
+        targetAmount: 56490.0,
+        status: PaymentStatus.ROUTED,
+        fraudScore: 0.00015,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'CLEARED',
+        complianceFlagsJson: JSON.stringify([]),
+        paypalOrderId: 'ORD-SANDBOX-99310',
+        paypalCaptureId: 'CAP-SANDBOX-99310',
+        paypalStatus: 'COMPLETED',
+        fundingMode: 'PAYPAL_SANDBOX',
+        selectedRouteJson: JSON.stringify(['GSB_US', 'PACIFIC_SG']),
+        routeCostUSD: 28.5,
+        estimatedMinutes: 60,
+        routeReasoning: 'Direct Transpacific Fedwire/MEPS+ bilateral corridor selected.',
+      },
+      {
+        reference: 'TX-2026-EUR-USD-1102',
+        senderName: 'Frankfurt FinTech Ventures',
+        senderBank: 'EUROT_DE',
+        senderCountry: 'DE',
+        receiverName: 'Silicon Valley Angel Group',
+        receiverBank: 'GSB_US',
+        receiverCountry: 'US',
+        amount: 15000.0,
+        currency: 'EUR',
+        targetCurrency: 'USD',
+        exchangeRate: 1.087,
+        targetAmount: 16305.0,
+        status: PaymentStatus.RISK_CHECKED,
+        fraudScore: 0.00021,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'CLEARED',
+        complianceFlagsJson: JSON.stringify([]),
+        selectedRouteJson: JSON.stringify(['EUROT_DE', 'INT_LDN', 'GSB_US']),
+        routeCostUSD: 16.5,
+        estimatedMinutes: 35,
+        routeReasoning: 'London clearing hub selected for transatlantic settlement.',
+      },
+      {
+        reference: 'TX-2026-USD-EUR-6644',
+        senderName: 'Stolen Identity Benchmark Account',
+        senderBank: 'GSB_US',
+        senderCountry: 'US',
+        receiverName: 'Offshore Shell Co.',
+        receiverBank: 'EUROT_DE',
+        receiverCountry: 'DE',
+        amount: 145000.0,
+        currency: 'USD',
+        targetCurrency: 'EUR',
+        exchangeRate: 0.92,
+        targetAmount: 133400.0,
+        status: PaymentStatus.RISK_HELD,
+        fraudScore: 0.9412,
+        fraudRiskLevel: 'HIGH',
+        fraudDecision: 'REJECT',
+        topFeaturesJson: JSON.stringify([
+          { feature: 'V14', value: -9.85, significance: 'HIGH', direction: 'NEGATIVE' },
+          { feature: 'V12', value: -7.95, significance: 'HIGH', direction: 'NEGATIVE' },
+          { feature: 'V10', value: -6.8, significance: 'HIGH', direction: 'NEGATIVE' },
+          { feature: 'V4', value: 5.2, significance: 'HIGH', direction: 'POSITIVE' },
+        ]),
+        benchmarkFixtureKey: 'HIGH_RISK_FRAUD',
+        complianceStatus: 'FLAGGED_FOR_REVIEW',
+        complianceFlagsJson: JSON.stringify([
+          {
+            rule_id: 'AML-WIRE-005',
+            rule_name: 'Wholesale Wire Large Value Threshold',
+            severity: 'INFO',
+            description: 'Transfer exceeds standard straight-through threshold.',
+          },
+        ]),
+        selectedRouteJson: JSON.stringify(['GSB_US', 'EUROT_DE']),
+        routeCostUSD: 35.4,
+        estimatedMinutes: 45,
+        routeReasoning: 'Route calculated but funding held due to critical LightGBM fraud model score (0.9412).',
+      },
+      {
+        reference: 'TX-2026-USD-EUR-0099',
+        senderName: 'Vasily Malyshev',
+        senderBank: 'GSB_US',
+        senderCountry: 'US',
+        receiverName: 'Test Commercial Partner',
+        receiverBank: 'EUROT_DE',
+        receiverCountry: 'DE',
+        amount: 500000.0,
+        currency: 'USD',
+        targetCurrency: 'EUR',
+        exchangeRate: 0.92,
+        targetAmount: 460000.0,
+        status: PaymentStatus.RISK_HELD,
+        fraudScore: 0.0005,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'REJECTED',
+        complianceFlagsJson: JSON.stringify([
+          {
+            rule_id: 'AML-SANCTIONS-001',
+            rule_name: 'Simulated OFAC / UN Sanctions Watchlist Match',
+            severity: 'BLOCK',
+            description: "Entity name matched simulated sanctions entry 'VASILY MALYSHEV'.",
+            matched_value: 'VASILY MALYSHEV',
+          },
+        ]),
+        selectedRouteJson: JSON.stringify(['GSB_US', 'EUROT_DE']),
+        routeCostUSD: 52.0,
+        estimatedMinutes: 45,
+        routeReasoning: 'Transaction blocked immediately by automated AML/Sanctions rules.',
+      },
+      {
+        reference: 'TX-2026-SGD-EUR-3321',
+        senderName: 'Changi Aerospace Logistics',
+        senderBank: 'PACIFIC_SG',
+        senderCountry: 'SG',
+        receiverName: 'Toulouse Avionics SAS',
+        receiverBank: 'EUROT_DE',
+        receiverCountry: 'DE',
+        amount: 350000.0,
+        currency: 'SGD',
+        targetCurrency: 'EUR',
+        exchangeRate: 0.684,
+        targetAmount: 239400.0,
+        status: PaymentStatus.SETTLEMENT_PENDING,
+        fraudScore: 0.00028,
+        fraudRiskLevel: 'LOW',
+        fraudDecision: 'APPROVE',
+        topFeaturesJson: JSON.stringify([]),
+        benchmarkFixtureKey: 'LEGIT_CLEAN',
+        complianceStatus: 'CLEARED',
+        complianceFlagsJson: JSON.stringify([]),
+        paypalOrderId: 'ORD-SANDBOX-33210',
+        paypalCaptureId: 'CAP-SANDBOX-33210',
+        paypalStatus: 'COMPLETED',
+        fundingMode: 'PAYPAL_SANDBOX',
+        selectedRouteJson: JSON.stringify(['PACIFIC_SG', 'INT_LDN', 'EUROT_DE']),
+        routeCostUSD: 45.2,
+        estimatedMinutes: 50,
+        routeReasoning: 'London corridor selected: Lowest correspondent FX slippage for wholesale ticket.',
+        settlementTxRef: 'SETTLE-MEPS-20261110-33210',
+      },
+    ];
+
+    for (const item of samplePayments) {
+      const payment = this.paymentRepo.create(item);
+      const saved = await this.paymentRepo.save(payment);
+
+      // Append state transition to Fabric ledger
+      const ledgerResult = await this.fabricService.appendStateTransition({
+        payment: saved,
+        action: 'SEED_RECORD',
+        previousState: 'NONE',
+        newState: saved.status,
+        actorOrg: 'Org1MSP',
+        details: {
+          seedReference: saved.reference,
+          status: saved.status,
+          amount: saved.amount,
+          currency: saved.currency,
+        },
+      });
+
+      saved.fabricTxId = ledgerResult.txId;
+      saved.fabricBlockHash = ledgerResult.blockHash;
+      saved.ledgerCommitted = true;
+      await this.paymentRepo.save(saved);
+    }
+
+    this.logger.log(`Seeded ${samplePayments.length} demo payment records with Fabric audit blocks.`);
+  }
+}

@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. PostgreSQL Database
+  # ==========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: crossbridge-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: crossbridge
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d crossbridge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crossbridge-net
+
+  # ==========================================
+  # 2. AI Fraud & Route Optimization Microservice
+  # ==========================================
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    image: crossbridge-ai-service:latest
+    container_name: crossbridge-ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - MODEL_DIR=app/model
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crossbridge-net
+
+  # ==========================================
+  # 3. Backend API & Payment Orchestration (NestJS)
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: crossbridge-backend:latest
+    container_name: crossbridge-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/crossbridge
+      - AI_SERVICE_URL=http://ai-service:8000
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET:-}
+      - PAYPAL_API_BASE=${PAYPAL_API_BASE:-https://api-m.sandbox.paypal.com}
+      - CORS_ORIGIN=*
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    networks:
+      - crossbridge-net
+
+  # ==========================================
+  # 4. Next.js Frontend Dashboard
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: crossbridge-frontend:latest
+    container_name: crossbridge-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+      - NEXT_PUBLIC_PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
+    depends_on:
+      - backend
+    networks:
+      - crossbridge-net
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  crossbridge-net:
+    driver: bridge
