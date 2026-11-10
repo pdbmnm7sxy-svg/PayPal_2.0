@@ -22,7 +22,7 @@ export class EventsGateway
   server: Server;
 
   afterInit() {
-    this.logger.log('Crossbridge Real-Time WebSocket Gateway Initialized');
+    this.logger.log('Transnational Real-Time WebSocket Gateway Initialized');
   }
 
   handleConnection(client: Socket) {

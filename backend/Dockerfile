@@ -21,4 +21,4 @@ COPY --from=builder /app/dist ./dist
 
 EXPOSE 4000
 
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "if [ -f dist/main.js ]; then node dist/main; else node dist/src/main; fi"]

@@ -1,7 +1,7 @@
 {
   "name": "crossbridge-frontend",
   "version": "1.0.0",
-  "description": "Crossbridge AI - Institutional Cross-Border Payments Operations Dashboard",
+  "description": "Transnational - Institutional Cross-Border Payments Operations Dashboard",
   "author": "Team ERROR",
   "private": true,
   "scripts": {

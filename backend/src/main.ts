@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const logger = new Logger('CrossbridgeBootstrap');
+  const logger = new Logger('TransnationalBootstrap');
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
@@ -22,7 +22,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Crossbridge AI - Orchestration API')
+    .setTitle('Transnational - Orchestration API')
     .setDescription(
       'Institutional Cross-Border Settlement, PayPal Sandbox Funding, Hyperledger Fabric Audit, and AI Optimization Engine',
     )
@@ -36,7 +36,7 @@ async function bootstrap() {
   const port = process.env.PORT || 4000;
   await app.listen(port);
   logger.log(`=======================================================`);
-  logger.log(` Crossbridge AI Backend is running on: http://localhost:${port}`);
+  logger.log(` Transnational Backend is running on: http://localhost:${port}`);
   logger.log(` Swagger API documentation available at: http://localhost:${port}/docs`);
   logger.log(` WebSocket Real-Time Gateway active on port: ${port}`);
   logger.log(`=======================================================`);

@@ -6,53 +6,61 @@
 @import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 :root {
-  --background: #090d16;
-  --foreground: #f8fafc;
+  --background: #f5f7fa;
+  --foreground: #0f172a;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom AG Grid Dark Fintech Quartz styling */
-.ag-theme-quartz-dark {
-  --ag-background-color: #0d1525;
-  --ag-header-background-color: #131d33;
-  --ag-header-foreground-color: #94a3b8;
-  --ag-foreground-color: #f1f5f9;
-  --ag-border-color: #1e293b;
-  --ag-row-border-color: #1e293b;
-  --ag-odd-row-background-color: #0b1220;
-  --ag-row-hover-color: #1a2744;
-  --ag-selected-row-background-color: #1e3a8a33;
+/* Custom AG Grid Light Fintech Quartz styling */
+.ag-theme-quartz {
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #475569;
+  --ag-foreground-color: #0f172a;
+  --ag-border-color: #e2e8f0;
+  --ag-row-border-color: #f1f5f9;
+  --ag-odd-row-background-color: #ffffff;
+  --ag-row-hover-color: #f0f7ff;
+  --ag-selected-row-background-color: #e0f2fe;
   --ag-font-family: inherit;
   --ag-font-size: 13px;
-  --ag-grid-size: 6px;
-  --ag-cell-horizontal-padding: 14px;
+  --ag-grid-size: 8px;
+  --ag-cell-horizontal-padding: 16px;
 }
 
-.ag-theme-quartz-dark .ag-header-cell {
+.ag-theme-quartz .ag-header-cell {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 11px;
+  color: #64748b;
+}
+
+.ag-theme-quartz .ag-root-wrapper {
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
 }
 
 /* Smooth custom scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }

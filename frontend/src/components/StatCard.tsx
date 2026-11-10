@@ -9,7 +9,7 @@ interface StatCardProps {
   subtitle?: string;
   icon: LucideIcon;
   badge?: string;
-  badgeColor?: 'emerald' | 'amber' | 'rose' | 'sky' | 'indigo';
+  badgeColor?: 'emerald' | 'amber' | 'rose' | 'sky' | 'indigo' | 'blue';
 }
 
 export default function StatCard({
@@ -18,42 +18,52 @@ export default function StatCard({
   subtitle,
   icon: Icon,
   badge,
-  badgeColor = 'sky',
+  badgeColor = 'blue',
 }: StatCardProps) {
   const badgeClasses = {
-    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    amber: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-    rose: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
-    sky: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
-    indigo: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    amber: 'bg-amber-50 text-amber-700 border-amber-200',
+    rose: 'bg-rose-50 text-rose-700 border-rose-200',
+    sky: 'bg-sky-50 text-sky-700 border-sky-200',
+    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    blue: 'bg-blue-50 text-blue-700 border-blue-200',
+  }[badgeColor];
+
+  const iconBgClasses = {
+    emerald: 'bg-emerald-50 text-emerald-600',
+    amber: 'bg-amber-50 text-amber-600',
+    rose: 'bg-rose-50 text-rose-600',
+    sky: 'bg-sky-50 text-sky-600',
+    indigo: 'bg-indigo-50 text-indigo-600',
+    blue: 'bg-blue-50 text-[#0070e0]',
   }[badgeColor];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all shadow-sm">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-5 hover:border-slate-300 transition-all shadow-xs hover:shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
           {title}
         </span>
-        <div className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300">
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${iconBgClasses}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
       <div className="mt-3 flex items-baseline justify-between">
-        <div className="text-2xl font-bold tracking-tight text-white font-mono">
+        <div className="text-2xl font-bold tracking-tight text-slate-900 font-sans">
           {value}
         </div>
         {badge && (
           <span
-            className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${badgeClasses}`}
+            className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${badgeClasses}`}
           >
             {badge}
           </span>
         )}
       </div>
       {subtitle && (
-        <div className="mt-1 text-xs text-slate-400">
+        <p className="mt-1.5 text-xs text-slate-500 font-normal">
           {subtitle}
-        </div>
+        </p>
       )}
     </div>
   );

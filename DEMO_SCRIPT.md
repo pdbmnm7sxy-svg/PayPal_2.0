@@ -1,4 +1,4 @@
-# Crossbridge AI: Hackathon Video Demo Script & Shot List
+# Transnational: Hackathon Video Demo Script & Shot List
 
 **Target Duration:** 2 minutes 45 seconds (Under 3 minutes)  
 **Track:** Open Innovation (PS-01)  
@@ -43,7 +43,7 @@
 - Quick filter search bar demonstration (filtering by "EUR" or "APPROVED").
 
 **Spoken Voiceover:**
-> *"Hello! We are Team ERROR, and this is Crossbridge AI — an intelligent cross-border settlement and funding orchestrator built for financial institutions. Traditional international transfers take days, suffer from opaque correspondent fees, and leave audit blind spots. Crossbridge bridges real digital payment funding with pre-clearing machine learning risk analysis, multi-hop route optimization, and an immutable permissioned ledger audit trail. Please note that this is a working prototype: interbank settlement, FX, and KYC/AML screening are simulated, while digital funding integrates real PayPal Sandbox checkout."*
+> *"Hello! We are Team ERROR, and this is Transnational — an intelligent cross-border settlement and funding orchestrator built for financial institutions. Traditional international transfers take days, suffer from opaque correspondent fees, and leave audit blind spots. Transnational bridges real digital payment funding with pre-clearing machine learning risk analysis, multi-hop route optimization, and an immutable permissioned ledger audit trail. Please note that this is a working prototype: interbank settlement, FX, and KYC/AML screening are simulated, while digital funding integrates real PayPal Sandbox checkout."*
 
 ---
 
@@ -60,7 +60,7 @@
 - Show automated Compliance Screening: Sanctions List Clean, PEP Cleared, Wire Limit Approved.
 
 **Spoken Voiceover:**
-> *"When creating an institutional transfer, Crossbridge AI performs instantaneous dual-layer risk evaluation before any funds move. For fraud anomaly detection, our Python FastAPI microservice runs a pinned LightGBM classifier from Hugging Face trained on anonymized PCA vectors. Because raw wire parameters should never be conflated with credit card PCA latent spaces, we provide benchmark fixtures: selecting a high-risk vector triggers an immediate hold, while our clean benchmark evaluates to a safe 0.02% fraud probability alongside our rule-based sanctions and KYC compliance screening."*
+> *"When creating an institutional transfer, Transnational performs instantaneous dual-layer risk evaluation before any funds move. For fraud anomaly detection, our Python FastAPI microservice runs a pinned LightGBM classifier from Hugging Face trained on anonymized PCA vectors. Because raw wire parameters should never be conflated with credit card PCA latent spaces, we provide benchmark fixtures: selecting a high-risk vector triggers an immediate hold, while our clean benchmark evaluates to a safe 0.02% fraud probability alongside our rule-based sanctions and KYC compliance screening."*
 
 ---
 
@@ -78,7 +78,7 @@
 - Click the "Create Institutional Transfer" button.
 
 **Spoken Voiceover:**
-> *"Next, how does the payment move? Instead of static correspondent routing, Crossbridge uses Google OR-Tools to solve a Mixed-Integer Linear Programming minimum-cost flow problem in real time. It evaluates real-time node liquidity, correspondent hops, FX spread basis points, and central bank cutoff windows to guarantee the cheapest and fastest viable corridor. Here, OR-Tools selected a 2-hop route via our New York correspondent node, saving 34 basis points compared to legacy manual correspondent routes."*
+> *"Next, how does the payment move? Instead of static correspondent routing, Transnational uses Google OR-Tools to solve a Mixed-Integer Linear Programming minimum-cost flow problem in real time. It evaluates real-time node liquidity, correspondent hops, FX spread basis points, and central bank cutoff windows to guarantee the cheapest and fastest viable corridor. Here, OR-Tools selected a 2-hop route via our New York correspondent node, saving 34 basis points compared to legacy manual correspondent routes."*
 
 ---
 
@@ -122,4 +122,4 @@
 - Display closing slide with Team ERROR metadata and GitHub repository URL.
 
 **Spoken Voiceover:**
-> *"Crossbridge AI demonstrates how modern digital checkout, AI risk analysis, constraint optimization, and permissioned distributed ledgers can transform cross-border financial infrastructure. Thank you!"*
+> *"Transnational demonstrates how modern digital checkout, AI risk analysis, constraint optimization, and permissioned distributed ledgers can transform cross-border financial infrastructure. Thank you!"*

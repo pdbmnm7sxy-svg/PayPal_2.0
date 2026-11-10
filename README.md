@@ -1,4 +1,4 @@
-# Crossbridge AI
+# Transnational
 
 > **Intelligent Cross-Border Interbank Settlement & Digital Funding Orchestrator**
 
@@ -11,7 +11,7 @@
 
 ## 1. Project Information & Metadata
 
-- **Product Name:** Crossbridge AI
+- **Product Name:** Transnational
 - **Problem Statement Code:** `PS-01`
 - **Track:** Open Innovation
 - **Team Name:** `Team ERROR`
@@ -29,7 +29,7 @@ Cross-border interbank transfers currently rely on legacy correspondent banking 
 3. **Disjointed Risk & Compliance:** Risk checks are performed retroactively in isolated silos, causing high false-positive rates and delayed liquidity.
 4. **Audit Vulnerability:** Bilateral reconciliations are performed manually across fragmented core banking systems.
 
-**Crossbridge AI** solves this by providing a unified orchestrator that couples **real PayPal Sandbox digital funding** with **pre-clearing machine learning risk analysis**, **Google OR-Tools multi-hop route optimization**, **simulated central bank RTGS settlement**, and an **immutable Hyperledger Fabric permissioned ledger audit trail**.
+**Transnational** solves this by providing a unified orchestrator that couples **real PayPal Sandbox digital funding** with **pre-clearing machine learning risk analysis**, **Google OR-Tools multi-hop route optimization**, **simulated central bank RTGS settlement**, and an **immutable Hyperledger Fabric permissioned ledger audit trail**.
 
 ---
 
@@ -55,7 +55,7 @@ Cross-border interbank transfers currently rely on legacy correspondent banking 
                                         REST (Port 4000)     WebSocket (Port 4000)
                                                       v             |
 +------------------------------------------------------------------------------------+
-|                                    NestJS Orchestrator API                         |
+|                                  NestJS Orchestrator API                           |
 |  - Transfer Workflow Engine           - Real PayPal Orders v2 Client (Sandbox)     |
 |  - Simulated Settlement Service       - Hyperledger Fabric & Audit Trail Client    |
 |  - TypeORM Data Persistence           - Socket.IO Real-Time Gateway                |
@@ -75,7 +75,7 @@ Cross-border interbank transfers currently rely on legacy correspondent banking 
 
 ## 5. Technology Stack
 
-| Technology | Role in Crossbridge AI |
+| Technology | Role in Transnational |
 | :--- | :--- |
 | **Next.js 14 & TypeScript** | Client-side dashboard, transfer initiation wizard, and operations monitoring. |
 | **AG Grid Community** | Primary operations grid for institutional transfers with multi-column sorting, filtering, and pagination. |
@@ -97,13 +97,13 @@ Cross-border interbank transfers currently rely on legacy correspondent banking 
 
 ### 1. Clone & Configure Environment
 ```bash
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/crossbridge-ai.git
-cd crossbridge-ai
+git clone https://github.com/<YOUR_GITHUB_USERNAME>/transnational.git
+cd transnational
 
 # Copy environment configuration template
 cp .env.example .env
 ```
-*(Optional)* Add your PayPal Developer Sandbox client credentials to `.env`. If left blank, Crossbridge runs in **Simulated Demo Funding Mode** with a clearly labeled UI banner.
+*(Optional)* Add your PayPal Developer Sandbox client credentials to `.env`. If left blank, Transnational runs in **Simulated Demo Funding Mode** with a clearly labeled UI banner.
 
 ### 2. Start Full Stack
 ```bash
@@ -113,7 +113,10 @@ docker compose up --build -d
 ### 3. Verify Health & Access UI
 Open your browser to:
 - **Operations Dashboard:** `http://localhost:3000`
-- **Backend API & Swagger:** `http://localhost:4000/api/health`
+- **Activity Feed & Records:** `http://localhost:3000/activity`
+- **New Transfer Flow:** `http://localhost:3000/transfers/new`
+- **Member Institutions:** `http://localhost:3000/institutions`
+- **Backend API & Swagger:** `http://localhost:4000/api/payments/stats`
 - **AI Microservice Health:** `http://localhost:8000/health`
 - **AI Model & Benchmark Info:** `http://localhost:8000/api/model/info`
 
@@ -151,7 +154,7 @@ npm run dev
 
 ## 8. PayPal Sandbox Integration Guide
 
-Crossbridge AI integrates PayPal Sandbox using server-side **Orders v2 REST APIs** via the official `@paypal/react-paypal-js` client SDK:
+Transnational integrates PayPal Sandbox using server-side **Orders v2 REST APIs** via the official `@paypal/react-paypal-js` client SDK:
 
 1. **Obtain Sandbox Credentials:**
    - Log in to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/sandbox).
@@ -166,7 +169,7 @@ Crossbridge AI integrates PayPal Sandbox using server-side **Orders v2 REST APIs
    - `PAYPAL_CLIENT_SECRET` is read **only** by the NestJS backend and never sent to the browser.
    - Orders are initiated via `POST /api/payments/:id/paypal/create-order` and captured via `POST /api/payments/:id/paypal/capture-order`.
 4. **Unconfigured Fallback:**
-   - When credentials are not provided, the UI clearly displays an amber **"PayPal Sandbox Not Configured"** banner and allows testing via an explicitly labeled **"Simulated Demo Funding"** button so offline judges can test the full lifecycle.
+   - When credentials are not provided, the UI clearly displays an amber **"PayPal Sandbox Not Configured"** banner and allows testing via an explicitly labeled **"Execute Demo Funding"** button so offline judges can test the full lifecycle.
 
 ---
 
@@ -201,7 +204,7 @@ Follow this flow to test all system components:
 2. **Select Institutions & Amount:** Select `GSB_US` to `EUROT_DE` for `$75,000.00`.
 3. **AI Risk Benchmarking:** Click the benchmark fixture cards (`LEGIT_CLEAN`, `SUSPICIOUS_VELOCITY`, `HIGH_RISK_FRAUD`) to observe real-time inference from the Hugging Face LightGBM model. Select `LEGIT_CLEAN` to proceed.
 4. **Review OR-Tools Route:** Inspect the calculated multi-hop corridor, fee breakdown, and FX spread.
-5. **Create Payment:** Click *Create Institutional Transfer*. The payment is persisted in PostgreSQL with state `RISK_SCREENED`.
+5. **Create Payment:** Click *Confirm & Initiate Transfer*. The payment is persisted in PostgreSQL with state `RISK_SCREENED`.
 6. **Fund with PayPal:** Open the transfer drawer and click the **PayPal Checkout** button (or Demo Funding). Once captured, status transitions to `PAYPAL_CAPTURED` and commits an audit entry to the ledger.
 7. **Execute Interbank Settlement:** Click *Execute Interbank Settlement*. The system debits/credits the simulated bank liquidity pools, generates a central bank tracking reference (`FEDWIRE-REF-...`), and transitions status to `SETTLED`.
 8. **Explore Ledger:** Navigate to `http://localhost:3000/ledger` to inspect the verifiable block transactions.

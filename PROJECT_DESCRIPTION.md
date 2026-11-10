@@ -1,8 +1,8 @@
-# Project Description: Crossbridge AI
+# Project Description: Transnational
 
 **Hackathon Problem Statement Code:** PS-01  
 **Track:** Open Innovation  
-**Product Title:** Crossbridge AI (Intelligent Institutional Cross-Border Settlement & Funding Orchestrator)  
+**Product Title:** Transnational (Intelligent Institutional Cross-Border Settlement & Funding Orchestrator)  
 **Team Name:** Team ERROR  
 **Team Members:**  
 - **Chirantan Samuel Chetan** (Team Lead)  
@@ -21,13 +21,13 @@ Cross-border interbank transfers traditionally move through an antiquated patchw
 
 ---
 
-## 2. The Solution: Crossbridge AI
+## 2. The Solution: Transnational
 
-**Crossbridge AI** is an institutional cross-border payments orchestrator that bridges modern digital checkout funding with intelligent multi-agent routing, real-time ML risk screening, and an immutable permissioned ledger audit trail.
+**Transnational** is an institutional cross-border payments orchestrator that bridges modern digital checkout funding with intelligent multi-agent routing, real-time ML risk screening, and an immutable permissioned ledger audit trail.
 
 ```
 +-----------------------------------------------------------------------------------------+
-|                                    Crossbridge AI                                       |
+|                                     Transnational                                       |
 |                                                                                         |
 |  [Institutional Transfer] ---> [AI Fraud Model]  ---> [Google OR-Tools]                 |
 |                                (29-PCA LightGBM)      (Multi-hop Graph)                 |
@@ -60,7 +60,7 @@ Cross-border interbank transfers traditionally move through an antiquated patchw
 ## 3. Prototype Scope & Transparency Notice
 
 > **IMPORTANT NOTICE:**  
-> **Crossbridge AI is an experimental hackathon prototype.**  
+> **Transnational is an experimental hackathon prototype.**  
 > - **Bank Settlement, FX, Liquidity, and Movement:** All interbank liquidity adjustments, foreign exchange conversions, central bank RTGS references, and bilateral ledger movements are simulated within software data structures for demonstration purposes.  
 > - **PayPal Funding Role:** PayPal Sandbox checkout demonstrates digital liquidity funding into the platform orchestrator; it does **not** perform, settle, or replace underlying interbank central bank settlement.  
 > - **KYC/AML Compliance:** The built-in sanctions, PEP, and FATF compliance screening logic is a clearly labeled, rule-based prototype demonstration and must **not** be used as a production regulatory compliance engine.  

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldAlert, X, Info } from 'lucide-react';
+import { ShieldAlert, X } from 'lucide-react';
 
 export default function PrototypeBanner() {
   const [dismissed, setDismissed] = useState(false);
@@ -9,24 +9,24 @@ export default function PrototypeBanner() {
   if (dismissed) return null;
 
   return (
-    <div className="bg-amber-950/40 border-b border-amber-500/30 text-amber-200 text-xs px-4 py-2 flex items-center justify-between">
-      <div className="flex items-center gap-2 max-w-6xl">
-        <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
-        <div>
-          <span className="font-semibold text-amber-300 mr-1.5 uppercase tracking-wide">
-            Hackathon Prototype Notice:
+    <div className="bg-amber-50 border-b border-amber-200 text-amber-900 text-xs px-4 py-2.5 flex items-center justify-between shadow-xs">
+      <div className="flex items-center gap-2.5 max-w-7xl mx-auto w-full">
+        <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="leading-relaxed">
+          <span className="font-semibold text-amber-800 mr-1.5 uppercase tracking-wide text-[11px]">
+            Prototype Demonstration Notice:
           </span>
-          Interbank settlement rails (Fedwire, Target2, MEPS+), liquidity pools, FX conversion, and KYC/AML screening are simulated.
-          PayPal Sandbox checkout demonstrates institutional pre-funding verification; it does not constitute or execute underlying correspondent banking settlement.
+          Interbank settlement rails (Fedwire, Target2, MEPS+), liquidity balances, FX spreads, and KYC/AML screening are simulated.
+          PayPal Sandbox checkout demonstrates institutional client funding verification; it does not perform or prove underlying correspondent banking settlement.
         </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-amber-600 hover:text-amber-800 transition-colors ml-auto shrink-0 p-1 rounded-md hover:bg-amber-100/60"
+          title="Dismiss notice"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
       </div>
-      <button
-        onClick={() => setDismissed(true)}
-        className="text-amber-400 hover:text-amber-200 transition-colors ml-4 shrink-0 p-1"
-        title="Dismiss notice"
-      >
-        <X className="w-3.5 h-3.5" />
-      </button>
     </div>
   );
 }

@@ -23,7 +23,7 @@ import { SeedService } from './seed/seed.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const dbType = config.get<string>('DATABASE_TYPE') || 'postgres';
+        const dbType = config.get<string>('DATABASE_TYPE');
         if (dbType === 'sqlite') {
           return {
             type: 'sqlite',
@@ -33,16 +33,28 @@ import { SeedService } from './seed/seed.service';
           };
         }
 
+        const dbUrl = config.get<string>('DATABASE_URL');
+        if (dbUrl) {
+          return {
+            type: 'postgres',
+            url: dbUrl,
+            entities: [Payment, AuditLog, BankNode],
+            synchronize: true,
+            retryAttempts: 10,
+            retryDelay: 3000,
+          };
+        }
+
         return {
           type: 'postgres',
-          host: config.get<string>('DATABASE_HOST') || 'localhost',
+          host: config.get<string>('DATABASE_HOST') || 'postgres',
           port: config.get<number>('DATABASE_PORT') || 5432,
-          username: config.get<string>('DATABASE_USER') || 'crossbridge',
-          password: config.get<string>('DATABASE_PASSWORD') || 'crossbridge_secret',
-          database: config.get<string>('DATABASE_NAME') || 'crossbridge_ledger',
+          username: config.get<string>('DATABASE_USER') || 'postgres',
+          password: config.get<string>('DATABASE_PASSWORD') || 'postgres',
+          database: config.get<string>('DATABASE_NAME') || 'crossbridge',
           entities: [Payment, AuditLog, BankNode],
           synchronize: true,
-          retryAttempts: 5,
+          retryAttempts: 10,
           retryDelay: 3000,
         };
       },

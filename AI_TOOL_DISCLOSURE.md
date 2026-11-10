@@ -1,6 +1,6 @@
 # AI & Machine Learning Tool Disclosure
 
-**Project:** Crossbridge AI  
+**Project:** Transnational  
 **Team:** Team ERROR (Chirantan Samuel Chetan, Ashish Singh)  
 **Hackathon Problem Statement:** PS-01 (Open Innovation)  
 
@@ -53,7 +53,7 @@ The model requires exact runtime compatibility to prevent unpickling discrepanci
 
 ---
 
-## 3. How the Model is Integrated in Crossbridge AI
+## 3. How the Model is Integrated in Transnational
 
 1. **Isolation in Dedicated Microservice:**  
    The model is loaded inside the FastAPI AI microservice (`ai-service/app/services/fraud_service.py`) during application startup. No user-uploaded model weights or arbitrary pickle files are ever accepted at runtime.
@@ -62,7 +62,7 @@ The model requires exact runtime compatibility to prevent unpickling discrepanci
    Ordinary cross-border transfer parameters (e.g., Sender Institution, Destination Bank, SWIFT BIC, Currency, Country Code) are **strictly isolated** and **never** passed into `V1`..`V28`.
 
 3. **Synthetic Benchmark Fixtures:**  
-   To allow users and judges to test the inference engine predictably without fabricating fraudulent card data, Crossbridge AI provides three pinned, synthetic test vectors derived from typical ULB feature distributions:
+   To allow users and judges to test the inference engine predictably without fabricating fraudulent card data, Transnational provides three pinned, synthetic test vectors derived from typical ULB feature distributions:
    - `LEGIT_CLEAN`: Balanced, low-variance PCA features simulating standard interbank clearing traffic (Fraud Probability < 0.05%, Decision: `APPROVED`).
    - `SUSPICIOUS_VELOCITY`: Moderate deviations in latent dimensions `V14`, `V10`, and `V12` (Fraud Probability ~ 42.8%, Decision: `FLAGGED_REVIEW`).
    - `HIGH_RISK_FRAUD`: Extreme negative excursions in `V14`, `V17`, `V12`, `V10` characteristic of synthetic identity compromise (Fraud Probability > 98%, Decision: `REJECTED`).
@@ -72,9 +72,9 @@ The model requires exact runtime compatibility to prevent unpickling discrepanci
 ## 4. Known Model Limitations & Scope Boundaries
 
 1. **Card Domain vs. Wholesale Interbank Wires:**  
-   The model was trained on retail credit card swipe/card-not-present fraud, **not** high-value interbank wholesale correspondent settlements. Its output within Crossbridge AI functions as a **proof-of-concept anomaly risk metric**, not a certified banking AML/anti-fraud score.
+   The model was trained on retail credit card swipe/card-not-present fraud, **not** high-value interbank wholesale correspondent settlements. Its output within Transnational functions as a **proof-of-concept anomaly risk metric**, not a certified banking AML/anti-fraud score.
 2. **No KYC / AML Capabilities:**  
-   The Hugging Face model contains zero knowledge of sanctions lists, politically exposed persons (PEP), or FATF jurisdictions. All KYC and AML compliance checks in Crossbridge AI are handled by a separate, clearly labeled deterministic rules engine (`compliance_service.py`).
+   The Hugging Face model contains zero knowledge of sanctions lists, politically exposed persons (PEP), or FATF jurisdictions. All KYC and AML compliance checks in Transnational are handled by a separate, clearly labeled deterministic rules engine (`compliance_service.py`).
 3. **Stationarity & Concept Drift:**  
    Because the dataset is from 2013, the model does not account for modern payment fraud vectors (e.g., Authorized Push Payment / APP fraud, account takeover through passkeys).
 4. **Explainability:**  
@@ -84,7 +84,7 @@ The model requires exact runtime compatibility to prevent unpickling discrepanci
 
 ## 5. Route Optimization: Google OR-Tools
 
-In addition to the classification model, Crossbridge AI uses **Google OR-Tools** (`ortools.linear_solver.pywraplp` - CBC / SCIP solvers) to solve the multi-commodity minimum-cost flow problem across simulated correspondent banking routes.
+In addition to the classification model, Transnational uses **Google OR-Tools** (`ortools.linear_solver.pywraplp` - CBC / SCIP solvers) to solve the multi-commodity minimum-cost flow problem across simulated correspondent banking routes.
 
 - **Objective Function:**  
   $$\min \sum_{(i,j)} x_{i,j} \cdot \left( \text{BaseFee}_{i,j} + \text{Amount} \cdot \frac{\text{FXSpreadBps}_{i,j}}{10000} \right) + \lambda \cdot \text{CutoffMinutes}_{i,j}$$

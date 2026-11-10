@@ -1,7 +1,7 @@
 {
   "name": "crossbridge-backend",
   "version": "1.0.0",
-  "description": "Crossbridge AI - Institutional Cross-Border Payment Orchestration Backend",
+  "description": "Transnational - Institutional Cross-Border Payment Orchestration Backend",
   "author": "Team ERROR",
   "private": true,
   "scripts": {

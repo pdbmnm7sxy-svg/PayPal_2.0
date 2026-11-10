@@ -155,7 +155,7 @@ export class PaypalService {
         purchase_units: [
           {
             reference_id: reference,
-            description: `Crossbridge AI Prototype Funding Verification - ${reference}`,
+            description: `Transnational Prototype Funding Verification - ${reference}`,
             amount: {
               currency_code: currency,
               value: amount.toFixed(2),
@@ -163,7 +163,7 @@ export class PaypalService {
           },
         ],
         application_context: {
-          brand_name: 'Crossbridge AI',
+          brand_name: 'Transnational',
           landing_page: 'NO_PREFERENCE',
           user_action: 'PAY_NOW',
           return_url: 'https://example.com/checkout/success',

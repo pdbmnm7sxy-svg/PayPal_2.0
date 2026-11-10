@@ -1,8 +1,8 @@
-# Crossbridge AI: Hackathon Submission Checklist
+# Transnational: Hackathon Submission Checklist
 
 **Hackathon Problem Statement Code:** PS-01  
 **Track:** Open Innovation  
-**Product Title:** Crossbridge AI  
+**Product Title:** Transnational  
 **Team Name:** Team ERROR  
 **Team Lead:** Chirantan Samuel Chetan  
 **Team Member:** Ashish Singh  
@@ -60,22 +60,22 @@ git init
 git add .
 
 # Create initial release commit
-git commit -m "feat: complete Crossbridge AI hackathon MVP release (Team ERROR)"
+git commit -m "feat: complete Transnational hackathon MVP release (Team ERROR)"
 ```
 
 ### Step 2.3: Publish to GitHub
 1. Log in to your GitHub account: [https://github.com/new](https://github.com/new)
 2. Create a new repository:
-   - **Repository Name:** `crossbridge-ai` (or `PayPal_2.0`)
+   - **Repository Name:** `transnational` (or `PayPal_2.0`)
    - **Visibility:** **Public** (required by hackathon guidelines)
    - Do **not** initialize with a README or license (they are already included in the workspace).
 3. Link your remote and push:
 ```bash
 git branch -M main
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/crossbridge-ai.git
+git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/transnational.git
 git push -u origin main
 ```
-4. Verify repository URL: `https://github.com/<YOUR_GITHUB_USERNAME>/crossbridge-ai`
+4. Verify repository URL: `https://github.com/<YOUR_GITHUB_USERNAME>/transnational`
 
 ---
 
@@ -101,12 +101,12 @@ git push -u origin main
 1. Navigate to YouTube Studio: [https://studio.youtube.com/](https://studio.youtube.com/)
 2. Upload the MP4 video.
 3. Configure video details:
-   - **Title:** `Crossbridge AI - Hackathon Demo (Team ERROR - PS-01)`
+   - **Title:** `Transnational - Hackathon Demo (Team ERROR - PS-01)`
    - **Visibility:** **Public** or **Unlisted** (ensure anyone with the link can view without signing in).
    - **Audience:** Not made for kids (standard).
    - **Description:**
      ```
-     Crossbridge AI is an intelligent institutional cross-border settlement and funding orchestrator built for the PayPal Hackathon (Problem Statement PS-01, Open Innovation Track).
+     Transnational is an intelligent institutional cross-border settlement and funding orchestrator built for the PayPal Hackathon (Problem Statement PS-01, Open Innovation Track).
 
      Team ERROR:
      - Chirantan Samuel Chetan (Team Lead)
@@ -119,7 +119,7 @@ git push -u origin main
      - Hyperledger Fabric permissioned ledger state transition audit records
      - Next.js 14 & AG Grid Community operations dashboard
 
-     GitHub Repository: https://github.com/<YOUR_GITHUB_USERNAME>/crossbridge-ai
+     GitHub Repository: https://github.com/<YOUR_GITHUB_USERNAME>/transnational
      Note: Bank settlement, FX, liquidity, and KYC/AML are simulated prototype demonstrations.
      ```
 4. Copy the public YouTube link (e.g., `https://youtu.be/XXXXXXXXXXX`).
@@ -132,13 +132,13 @@ When submitting through the hackathon portal, fill out the form using these exac
 
 | Field | Value |
 | :--- | :--- |
-| **Project / Product Name** | `Crossbridge AI` |
+| **Project / Product Name** | `Transnational` |
 | **Problem Statement Code** | `PS-01` |
 | **Track** | `Open Innovation` |
 | **Team Name** | `Team ERROR` |
 | **Team Lead** | `Chirantan Samuel Chetan` |
 | **Team Member** | `Ashish Singh` |
-| **Public GitHub URL** | `https://github.com/<YOUR_GITHUB_USERNAME>/crossbridge-ai` |
+| **Public GitHub URL** | `https://github.com/<YOUR_GITHUB_USERNAME>/transnational` |
 | **Public Video Demo URL** | `https://youtu.be/<YOUR_VIDEO_ID>` |
-| **Brief Description** | *Crossbridge AI bridges digital checkout funding with machine learning risk analysis, Google OR-Tools route optimization, simulated interbank settlement, and Hyperledger Fabric audit trails.* |
+| **Brief Description** | *Transnational bridges digital checkout funding with machine learning risk analysis, Google OR-Tools route optimization, simulated interbank settlement, and Hyperledger Fabric audit trails.* |
 | **License** | `MIT License` |

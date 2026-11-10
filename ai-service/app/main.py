@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger("crossbridge.main")
 
 app = FastAPI(
-    title="Crossbridge AI - Intelligence & Optimization Engine",
+    title="Transnational - Intelligence & Optimization Engine",
     description=(
         "Microservice for Scikit-learn/LightGBM credit card fraud scoring, "
         "synthetic KYC/AML compliance screening, and Google OR-Tools interbank route optimization."

@@ -60,10 +60,10 @@ export class FabricService {
       paymentReference: 'GENESIS',
       payloadHash: genesisHash,
       details: {
-        network: 'Crossbridge Fabric Consortium',
+        network: 'Transnational Fabric Consortium',
         organizations: ['Org1MSP (GSB_US)', 'Org2MSP (EUROT_DE)', 'Org3MSP (PACIFIC_SG)'],
-        chaincode: 'crossbridge-chaincode@1.0.0',
-        orderer: 'orderer.crossbridge.net:7050',
+        chaincode: 'transnational-chaincode@1.0.0',
+        orderer: 'orderer.transnational.net:7050',
       },
       signature: crypto
         .createHmac('sha256', 'fabric-orderer-root-key')
