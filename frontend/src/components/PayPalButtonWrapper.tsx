@@ -1,49 +1,59 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
-import { AlertCircle, CheckCircle2, Play } from 'lucide-react';
+import {
+  CreditCard,
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+  ExternalLink,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 import { api } from '../lib/api';
-import { Payment } from '../types';
 
 interface PayPalButtonWrapperProps {
-  payment: Payment;
-  onSuccess: (payment: Payment) => void;
-  onError: (error: string) => void;
+  paymentId: string;
+  amount: string | number;
+  currency: string;
+  onSuccess: (payment: any) => void;
+  onError: (err: any) => void;
 }
 
 export default function PayPalButtonWrapper({
-  payment,
+  paymentId,
+  amount,
+  currency,
   onSuccess,
   onError,
 }: PayPalButtonWrapperProps) {
-  const [clientId, setClientId] = useState<string | null>(null);
-  const [isConfigured, setIsConfigured] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [simulating, setSimulating] = useState<boolean>(false);
+  const [clientId, setClientId] = useState<string>('');
+  const [configured, setConfigured] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [simulating, setSimulating] = useState(false);
 
   useEffect(() => {
     api
       .getPayPalClientId()
-      .then((res) => {
-        setClientId(res.clientId);
-        setIsConfigured(res.configured);
+      .then((cfg) => {
+        setConfigured(cfg.configured);
+        setClientId(cfg.clientId || '');
       })
-      .catch(() => {
-        setIsConfigured(false);
+      .catch((e) => {
+        console.error('Failed to get PayPal config:', e);
+        setConfigured(false);
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleSimulatedFunding = async () => {
+  const handleSimulatePayment = async () => {
     try {
       setSimulating(true);
-      const updated = await api.simulateFunding(payment.id);
-      onSuccess(updated);
-    } catch (err: any) {
-      onError(err.message || 'Simulation failed');
+      const res = await api.simulateFunding(paymentId);
+      onSuccess(res);
+    } catch (e: any) {
+      onError(e);
     } finally {
       setSimulating(false);
     }
@@ -51,106 +61,120 @@ export default function PayPalButtonWrapper({
 
   if (loading) {
     return (
-      <div className="py-4 text-center text-xs text-slate-500">
-        Checking PayPal Sandbox authorization gateway...
+      <div className="p-5 rounded-2xl bg-[#141726] border border-white/[0.08] text-center text-xs text-slate-400">
+        Checking PayPal Developer Sandbox authorization status...
       </div>
     );
   }
 
-  // If already funded
-  if (payment.status === 'FUNDED_PAYPAL' || payment.status === 'FUNDED_SIMULATED' || payment.paypalCaptureId) {
-    return (
-      <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
-        <div className="flex items-center gap-2 font-bold text-xs">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>Institutional Pre-Funding Captured & Verified</span>
-        </div>
-        <div className="mt-2 text-xs space-y-1 text-slate-700">
-          <div>Funding Verification: <span className="font-semibold text-slate-900">{payment.fundingMode}</span></div>
-          {payment.paypalOrderId && <div>PayPal Order ID: <span className="font-mono text-slate-800">{payment.paypalOrderId}</span></div>}
-          {payment.paypalCaptureId && <div>PayPal Capture ID: <span className="font-mono text-emerald-700 font-bold">{payment.paypalCaptureId}</span></div>}
-        </div>
-      </div>
-    );
-  }
-
-  // If real PayPal Sandbox credentials are not configured in environment
-  if (!isConfigured || !clientId) {
-    return (
-      <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-3">
-        <div className="flex items-start gap-2.5">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-xs">
-            <span className="font-bold text-amber-900 block">
-              PayPal Developer Sandbox Keys Unconfigured
+  return (
+    <div className="space-y-4">
+      {configured && clientId ? (
+        <div className="p-5 rounded-2xl bg-[#141726] border border-white/[0.08] shadow-card-dark">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-sky-400" />
+              <span className="text-xs font-bold text-white tracking-tight">
+                PayPal Developer Sandbox Checkout
+              </span>
+            </div>
+            <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" />
+              Connected
             </span>
-            <p className="text-amber-800 mt-1 leading-relaxed">
-              Real PayPal Sandbox checkout requires <code className="bg-amber-100 text-amber-900 px-1 py-0.5 rounded font-mono text-[11px]">PAYPAL_CLIENT_ID</code> and{' '}
-              <code className="bg-amber-100 text-amber-900 px-1 py-0.5 rounded font-mono text-[11px]">PAYPAL_CLIENT_SECRET</code> in the backend environment.
-            </p>
           </div>
-        </div>
 
-        <div className="pt-2.5 border-t border-amber-200/80 flex items-center justify-between gap-3">
-          <div className="text-[11px] text-amber-800">
-            Click below to execute a simulated funding verification:
-          </div>
-          <button
-            onClick={handleSimulatedFunding}
-            disabled={simulating}
-            className="px-4 py-2 rounded-full text-xs font-semibold bg-[#0070e0] hover:bg-[#005cb8] text-white flex items-center gap-1.5 transition-all shadow-xs shrink-0"
+          <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+            Authorized client funding demonstration. Order creation and capture execute server-side via NestJS calling PayPal Orders v2 APIs.
+          </p>
+
+          <PayPalScriptProvider
+            options={{
+              clientId: clientId,
+              currency: currency === 'SGD' ? 'SGD' : currency === 'EUR' ? 'EUR' : 'USD',
+              intent: 'capture',
+            }}
           >
-            <Play className="w-3.5 h-3.5" />
-            <span>{simulating ? 'Simulating...' : 'Execute Demo Funding'}</span>
+            <PayPalButtons
+              style={{
+                layout: 'vertical',
+                color: 'blue',
+                shape: 'rect',
+                label: 'pay',
+                height: 42,
+              }}
+              createOrder={async () => {
+                const res = await api.createPayPalOrder(paymentId);
+                return res.orderId;
+              }}
+              onApprove={async (data) => {
+                const res = await api.capturePayPalOrder(paymentId, data.orderID);
+                onSuccess(res);
+              }}
+              onError={(err) => {
+                console.error('PayPal checkout error:', err);
+                onError(err);
+              }}
+            />
+          </PayPalScriptProvider>
+        </div>
+      ) : (
+        <div className="p-5 rounded-2xl bg-[#141726] border border-white/[0.08] shadow-card-dark space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-white tracking-tight block">
+                  PayPal Sandbox Not Configured
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Missing PAYPAL_CLIENT_ID &amp; PAYPAL_CLIENT_SECRET
+                </span>
+              </div>
+            </div>
+
+            <span className="text-[10px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
+              Demo Fallback Mode
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-400 leading-relaxed">
+            To enable real PayPal checkout, add your credentials from the{' '}
+            <a
+              href="https://developer.paypal.com/dashboard/applications/sandbox"
+              target="_blank"
+              rel="noreferrer"
+              className="text-violet-400 underline font-medium hover:text-violet-300"
+            >
+              PayPal Developer Dashboard
+            </a>{' '}
+            to your local `.env` file. In the meantime, you can test the downstream blockchain and simulated settlement workflow with demo client funding.
+          </p>
+
+          <button
+            onClick={handleSimulatePayment}
+            disabled={simulating}
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.25)] active:scale-98"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>
+              {simulating
+                ? 'Processing Simulated Client Funding...'
+                : 'Confirm with Simulated Demo Funding'}
+            </span>
           </button>
         </div>
-      </div>
-    );
-  }
+      )}
 
-  // Real PayPal Sandbox Checkout
-  return (
-    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-bold text-slate-800">
-          PayPal Sandbox Institutional Checkout
-        </span>
-        <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-          Sandbox Connected
+      {/* Strict prototype notice footer */}
+      <div className="p-3 rounded-xl bg-[#0e101a] border border-white/[0.04] flex items-center gap-2 text-[11px] text-slate-400">
+        <Lock className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+        <span>
+          Funding authorization demonstrates payment initiation; it is distinct from and precedes correspondent bank settlement.
         </span>
       </div>
-
-      <PayPalScriptProvider
-        options={{
-          clientId: clientId,
-          currency: 'USD',
-          intent: 'capture',
-        }}
-      >
-        <PayPalButtons
-          style={{ layout: 'vertical', shape: 'pill', color: 'blue', label: 'pay' }}
-          createOrder={async () => {
-            try {
-              const res = await api.createPayPalOrder(payment.id);
-              return res.orderId;
-            } catch (err: any) {
-              onError(err.message || 'Failed to initialize PayPal Order');
-              throw err;
-            }
-          }}
-          onApprove={async (data) => {
-            try {
-              const updated = await api.capturePayPalOrder(payment.id, data.orderID);
-              onSuccess(updated);
-            } catch (err: any) {
-              onError(err.message || 'Failed to capture PayPal Order');
-            }
-          }}
-          onError={(err: any) => {
-            onError(err?.message || 'PayPal Checkout encounter an error');
-          }}
-        />
-      </PayPalScriptProvider>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   Play,
   FileText,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { api } from '../../lib/api';
 
@@ -61,110 +62,139 @@ export default function CompliancePage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Title */}
-      <div className="pb-3 border-b border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          <ShieldCheck className="w-6 h-6 text-[#0070e0]" />
-          <span>AI Fraud Scoring & Compliance Screening Hub</span>
+      <div className="pb-3 border-b border-white/[0.08]">
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-violet-400" />
+          <span>AI Fraud Scoring &amp; Compliance Screening Hub</span>
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-slate-400 mt-1">
           Technical transparency, Hugging Face model provenance, and demo-only KYC/AML rule verification.
         </p>
       </div>
 
       {/* Model Provenance & Disclosure Card */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-            Hugging Face Model Architecture & Attribution
+      <div className="p-6 rounded-2xl bg-[#10121d] border border-white/[0.08] shadow-card-dark space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <div className="text-xs font-bold text-white uppercase tracking-wider">
+            Hugging Face Model Architecture &amp; Attribution
           </div>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0070e0] border border-blue-200">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
             LightGBM Classifier Pipeline
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-slate-700">
-            <div><span className="text-slate-400 font-medium">Repository: </span><a href="https://huggingface.co/bolewara/credit-card-fraud-detector" target="_blank" rel="noreferrer" className="text-[#0070e0] font-semibold underline">bolewara/credit-card-fraud-detector</a></div>
-            <div><span className="text-slate-400 font-medium">Pinned Revision: </span><span className="text-slate-900 font-mono text-[11px]">20b4630d5b3bfbe1f46a91af620fa389f23a07a8</span></div>
-            <div><span className="text-slate-400 font-medium">Artifact File: </span><span className="text-slate-900 font-semibold font-mono text-[11px]">fraud_model.joblib (259 KB)</span></div>
-            <div><span className="text-slate-400 font-medium">Feature Schema: </span><span className="text-slate-900 font-semibold">29 features (V1..V28 and Amount)</span></div>
+          <div className="p-4 rounded-xl bg-[#141726] border border-white/[0.06] space-y-1.5 text-slate-300">
+            <div>
+              <span className="text-slate-400 font-medium">Repository: </span>
+              <a
+                href="https://huggingface.co/bolewara/credit-card-fraud-detector"
+                target="_blank"
+                rel="noreferrer"
+                className="text-violet-400 font-semibold underline hover:text-violet-300"
+              >
+                bolewara/credit-card-fraud-detector
+              </a>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Pinned Revision: </span>
+              <span className="text-slate-200 font-mono text-[11px]">20b4630d5b3bfbe1f46a91af620fa389f23a07a8</span>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Artifact File: </span>
+              <span className="text-slate-200 font-semibold font-mono text-[11px]">fraud_model.joblib (259 KB)</span>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Feature Schema: </span>
+              <span className="text-slate-200 font-semibold">29 features (V1..V28 and Amount)</span>
+            </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-slate-700">
-            <div><span className="text-slate-400 font-medium">Training Dataset: </span><span className="text-slate-900">ULB credit card benchmark (284,807 tx)</span></div>
-            <div><span className="text-slate-400 font-medium">Imbalance Handling: </span><span className="text-slate-900">0.17% fraud rate (class weights)</span></div>
-            <div><span className="text-slate-400 font-medium">Reported AUC: </span><span className="text-emerald-700 font-bold">0.947</span></div>
-            <div><span className="text-slate-400 font-medium">Intended Use: </span><span className="text-slate-900">Proof-of-concept anomaly risk demonstration</span></div>
+          <div className="p-4 rounded-xl bg-[#141726] border border-white/[0.06] space-y-1.5 text-slate-300">
+            <div>
+              <span className="text-slate-400 font-medium">Training Dataset: </span>
+              <span className="text-slate-200">ULB credit card benchmark (284,807 tx)</span>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Imbalance Handling: </span>
+              <span className="text-slate-200">0.17% fraud rate (class weights)</span>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Reported AUC: </span>
+              <span className="text-emerald-400 font-bold">0.947</span>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Intended Use: </span>
+              <span className="text-slate-200">Proof-of-concept anomaly risk demonstration</span>
+            </div>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5 leading-relaxed">
-          <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-amber-950 font-semibold">Domain Separation Guarantee: </strong>
-            Because wholesale cross-border wire fields (SWIFT BIC, legal entity, recipient country) are completely distinct from retail credit card PCA dimensions, Transnational strictly maintains feature isolation. Synthetic benchmark vectors are supplied to test model classification without fabricating synthetic identity compromise.
+        <div className="p-3.5 rounded-xl bg-[#0e101a] border border-white/[0.04] text-xs text-slate-400 space-y-1">
+          <div className="font-semibold text-amber-400 flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5" />
+            <span>Production Disclaimers &amp; Ethical AI Limitations:</span>
           </div>
+          <p>
+            1. The 28 PCA features (V1..V28) reflect anonymized payment card behavior. They are evaluated using synthetic benchmark vectors to test model latency and classification behavior without spoofing fake features.
+          </p>
+          <p>
+            2. This model does NOT perform Know-Your-Customer (KYC), Politically Exposed Persons (PEP), or Anti-Money-Laundering (AML) sanctions screening. Those checks are handled separately by simulated deterministic compliance rule-sets.
+          </p>
         </div>
       </div>
 
-      {/* Interactive Compliance & Fraud Test Bench */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <Play className="w-4 h-4 text-[#0070e0]" />
-            <span>Interactive Screening Testbench</span>
+      {/* Interactive Risk & AML Testing Bench */}
+      <div className="p-6 rounded-2xl bg-[#10121d] border border-white/[0.08] shadow-card-dark space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <Play className="w-4 h-4 text-violet-400" />
+            <span>Interactive Screening Workbench</span>
           </h3>
-          <span className="text-xs text-slate-400">Live Fast-API Evaluation</span>
+          <span className="text-xs text-slate-400 font-mono">Live FastAPI Inference</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Benchmark Vector</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">
+              Synthetic Vector Fixture
+            </label>
             <select
               value={selectedFixture}
               onChange={(e) => setSelectedFixture(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium"
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-violet-500 font-medium"
             >
-              <option value="LEGIT_CLEAN">LEGIT_CLEAN (Low Risk)</option>
-              <option value="SUSPICIOUS_VELOCITY">SUSPICIOUS_VELOCITY (Review)</option>
-              <option value="HIGH_RISK_FRAUD">HIGH_RISK_FRAUD (Block)</option>
+              <option value="LEGIT_CLEAN">LEGIT_CLEAN (Low risk &lt; 0.05%)</option>
+              <option value="SUSPICIOUS_VELOCITY">SUSPICIOUS_VELOCITY (Borderline ~40%)</option>
+              <option value="HIGH_RISK_FRAUD">HIGH_RISK_FRAUD (Extreme &gt; 90%)</option>
             </select>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Transfer Amount (USD)</label>
-            <input
-              type="number"
-              step="5000"
-              value={testAmount}
-              onChange={(e) => setTestAmount(Number(e.target.value))}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#0070e0]"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Originator Name</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">
+              Sender Entity Name
+            </label>
             <input
               type="text"
               value={senderName}
               onChange={(e) => setSenderName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0]"
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-violet-500 font-medium"
             />
+            <span className="text-[10px] text-slate-500 mt-1 block">
+              Tip: Test &ldquo;Vasily Malyshev&rdquo; or &ldquo;Kim Jong&rdquo; to trigger sanctions watchlists.
+            </span>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Origin Jurisdiction</label>
-            <select
-              value={senderCountry}
-              onChange={(e) => setSenderCountry(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium"
-            >
-              <option value="US">United States (Clean)</option>
-              <option value="DE">Germany (Clean)</option>
-              <option value="SG">Singapore (Clean)</option>
-              <option value="IR">Iran (FATF Blacklist Trigger)</option>
-              <option value="KP">North Korea (OFAC Sanctions Trigger)</option>
-            </select>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">
+              Test Amount (USD)
+            </label>
+            <input
+              type="number"
+              value={testAmount}
+              onChange={(e) => setTestAmount(Number(e.target.value))}
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-violet-500 font-medium"
+            />
           </div>
         </div>
 
@@ -172,60 +202,88 @@ export default function CompliancePage() {
           <button
             onClick={handleTest}
             disabled={loading}
-            className="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#0070e0] hover:bg-[#005cb8] text-white flex items-center gap-2 shadow-xs transition-all active:scale-95"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.3)] active:scale-95"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{loading ? 'Evaluating Model...' : 'Run Dual Risk Screening'}</span>
+            <Zap className="w-4 h-4" />
+            <span>{loading ? 'Evaluating Model & Screening...' : 'Execute Evaluation Bench'}</span>
           </button>
         </div>
-      </div>
 
-      {/* Results Card */}
-      {result && (
-        <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
-          <h3 className="text-sm font-bold text-slate-900">
-            Screening Evaluation Output
-          </h3>
+        {/* Results view */}
+        {result && (
+          <div className="mt-5 p-4 rounded-xl bg-[#141726] border border-white/[0.06] space-y-4 animate-in fade-in duration-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              {/* Fraud Model Output */}
+              <div className="p-3.5 rounded-xl bg-[#10121d] border border-white/[0.06] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white">LightGBM Model Score</span>
+                  <span
+                    className={`font-mono font-bold text-sm ${
+                      result.fraud.risk_level === 'HIGH'
+                        ? 'text-rose-400'
+                        : result.fraud.risk_level === 'MEDIUM'
+                        ? 'text-amber-400'
+                        : 'text-emerald-400'
+                    }`}
+                  >
+                    {(result.fraud.fraud_probability * 100).toFixed(2)}%
+                  </span>
+                </div>
+                <div className="text-slate-400">
+                  Decision: <strong className="text-white">{result.fraud.decision}</strong> | Level:{' '}
+                  <strong className="text-white">{result.fraud.risk_level}</strong>
+                </div>
+                {result.fraud.top_features && (
+                  <div className="pt-2 border-t border-white/[0.04]">
+                    <span className="text-[10px] text-slate-400 block mb-1">Feature Drivers:</span>
+                    <div className="flex flex-wrap gap-1.5 font-mono text-[10px]">
+                      {result.fraud.top_features.map((tf: any, i: number) => (
+                        <span key={i} className="px-1.5 py-0.5 rounded bg-white/[0.04] text-violet-300">
+                          {tf.feature}: {tf.value}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Fraud Result */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700 uppercase">LightGBM Model Score</span>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-                  result.fraud?.decision === 'APPROVED' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'
-                }`}>
-                  {result.fraud?.decision}
-                </span>
-              </div>
-              <div className="text-2xl font-extrabold text-slate-900">
-                {(Number(result.fraud?.fraud_probability || 0) * 100).toFixed(3)}%
-              </div>
-              <p className="text-xs text-slate-500">
-                Risk Tier: <strong className="text-slate-800">{result.fraud?.risk_level}</strong> • Anomaly threshold: 30%
-              </p>
-            </div>
-
-            {/* Compliance Result */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700 uppercase">Rules-Engine KYC/AML</span>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-                  result.compliance?.overall_status === 'CLEARED' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'
-                }`}>
-                  {result.compliance?.overall_status}
-                </span>
-              </div>
-              <div className="text-sm font-bold text-slate-800">
-                {result.compliance?.blocked ? 'Sanctions / Jurisdiction Blocked' : 'Regulatory Screen Passed'}
-              </div>
-              <div className="text-xs text-slate-500">
-                Flags Triggered: <strong className="text-slate-800">{result.compliance?.flags?.length || 0}</strong>
+              {/* Compliance Output */}
+              <div className="p-3.5 rounded-xl bg-[#10121d] border border-white/[0.06] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white">Simulated AML / Sanctions</span>
+                  <span
+                    className={`font-bold ${
+                      result.compliance.compliance_status === 'REJECTED'
+                        ? 'text-rose-400'
+                        : 'text-emerald-400'
+                    }`}
+                  >
+                    {result.compliance.compliance_status}
+                  </span>
+                </div>
+                <div className="text-slate-400">
+                  Action: <strong className="text-white">{result.compliance.recommended_action}</strong>
+                </div>
+                {result.compliance.flags?.length > 0 ? (
+                  <div className="pt-2 border-t border-white/[0.04] space-y-1">
+                    {result.compliance.flags.map((f: any, i: number) => (
+                      <div key={i} className="text-rose-300 text-[11px] flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                        <span>{f.rule_name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-emerald-400 text-[11px] flex items-center gap-1 pt-2 border-t border-white/[0.04]">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <span>No watchlist matches or jurisdiction restrictions detected.</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

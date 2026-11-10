@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -16,13 +16,17 @@ import {
   Sparkles,
   Clock,
   Coins,
+  AlertCircle,
+  CreditCard,
+  ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const INSTITUTIONS = [
-  { code: 'GSB_US', name: 'Global Settlement Bank', country: 'US', currency: 'USD', rail: 'Fedwire' },
-  { code: 'EUROT_DE', name: 'EuroTransact AG', country: 'DE', currency: 'EUR', rail: 'Target2' },
-  { code: 'PACIFIC_SG', name: 'Pacific Rim Financial', country: 'SG', currency: 'SGD', rail: 'MEPS+' },
+  { code: 'GSB_US', name: 'Global Settlement Bank', city: 'New York', country: 'US', currency: 'USD', rail: 'Fedwire' },
+  { code: 'EUROT_DE', name: 'EuroTransact AG', city: 'Frankfurt', country: 'DE', currency: 'EUR', rail: 'Target2' },
+  { code: 'PACIFIC_SG', name: 'Pacific Rim Financial', city: 'Singapore', country: 'SG', currency: 'SGD', rail: 'MEPS+' },
 ];
 
 const FIXTURES = [
@@ -30,27 +34,30 @@ const FIXTURES = [
     key: 'LEGIT_CLEAN',
     title: 'Low-Risk Interbank Settlement',
     badge: 'Approved',
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
     description: 'Clean bilateral correspondent wire profile with balanced PCA latent features. Expected fraud score < 0.05% (Approved).',
   },
   {
     key: 'SUSPICIOUS_VELOCITY',
     title: 'Elevated Velocity / Borderline Anomaly',
     badge: 'Manual Review',
-    badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+    badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
     description: 'Unusual PCA skew in sensitive latency components (V4, V11, V12). Expected fraud score ~ 35-55% (Flagged for Review).',
   },
   {
     key: 'HIGH_RISK_FRAUD',
     title: 'High-Risk Known Fraud Signature',
     badge: 'Rejection Hold',
-    badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
+    badgeColor: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
     description: 'Extreme negative PCA values in primary discriminators (V10, V12, V14, V17). Expected fraud score > 90% (Held / Blocked).',
   },
 ];
 
 export default function NewTransferPage() {
   const router = useRouter();
+
+  // Multi-step state: 1 = Corridor & Counterparties, 2 = Amount & Route, 3 = Risk & Funding Review
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   const [senderBank, setSenderBank] = useState('GSB_US');
   const [senderName, setSenderName] = useState('Apex Global Logistics LLC');
@@ -64,14 +71,20 @@ export default function NewTransferPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Approximate FX estimate
-  const exchangeRate = currency === 'USD' && targetCurrency === 'EUR' ? 0.92 : currency === 'EUR' && targetCurrency === 'USD' ? 1.08 : currency === 'USD' && targetCurrency === 'SGD' ? 1.35 : 1.0;
+  // FX calculations
+  const exchangeRate =
+    currency === 'USD' && targetCurrency === 'EUR'
+      ? 0.92
+      : currency === 'EUR' && targetCurrency === 'USD'
+      ? 1.08
+      : currency === 'USD' && targetCurrency === 'SGD'
+      ? 1.35
+      : 1.0;
   const estimatedTargetAmount = (amount * exchangeRate).toFixed(2);
-  const estimatedFeeUSD = 18.50;
+  const estimatedFeeUSD = 18.5;
   const estimatedSpreadBps = 12;
   const estimatedMinutes = 45;
 
-  // Update currencies automatically when bank changes
   const handleSenderChange = (code: string) => {
     setSenderBank(code);
     const bank = INSTITUTIONS.find((b) => b.code === code);
@@ -102,11 +115,16 @@ export default function NewTransferPage() {
       setSubmitting(true);
       setErrorMsg(null);
 
+      const senderBankObj = INSTITUTIONS.find((b) => b.code === senderBank)!;
+      const receiverBankObj = INSTITUTIONS.find((b) => b.code === receiverBank)!;
+
       const created = await api.createPayment({
         senderName,
         senderBank,
+        senderCountry: senderBankObj.country,
         receiverName,
         receiverBank,
+        receiverCountry: receiverBankObj.country,
         amount: Number(amount),
         currency,
         targetCurrency,
@@ -114,9 +132,10 @@ export default function NewTransferPage() {
         routingPriority,
       });
 
-      router.push(`/?paymentId=${created.id}`);
+      router.push(`/?highlight=${created.id}`);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Payment initiation failed');
+      console.error('Transfer submission error:', err);
+      setErrorMsg(err.message || 'Failed to initiate transfer');
     } finally {
       setSubmitting(false);
     }
@@ -124,258 +143,372 @@ export default function NewTransferPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Top Header & Breadcrumb */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-        <div className="flex items-center gap-3">
+      {/* Top Breadcrumb & Title */}
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div>
           <button
-            onClick={() => router.push('/')}
-            className="p-2 rounded-full border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            onClick={() => router.back()}
+            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors mb-1.5"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Dashboard</span>
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Initiate Institutional Wire Transfer
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Multi-agent pipeline: LightGBM fraud evaluation, compliance screening, Google OR-Tools routing, and Fabric consensus.
-            </p>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            Initiate Wholesale Cross-Border Transfer
+          </h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Institutional wire initiation with real-time OR-Tools route calculation, Hugging Face risk scoring, and PayPal Sandbox funding.
+          </p>
+        </div>
+
+        {/* Step Indicator Badges */}
+        <div className="hidden sm:flex items-center gap-2">
+          {[
+            { step: 1, label: 'Corridor' },
+            { step: 2, label: 'Amount & FX' },
+            { step: 3, label: 'Risk & Confirm' },
+          ].map((s) => (
+            <div
+              key={s.step}
+              onClick={() => setCurrentStep(s.step as any)}
+              className={`cursor-pointer px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                currentStep === s.step
+                  ? 'bg-violet-600 text-white shadow-[0_0_12px_rgba(139,92,246,0.3)]'
+                  : currentStep > s.step
+                  ? 'bg-violet-950/40 text-violet-300 border border-violet-500/30'
+                  : 'bg-[#10121d] text-slate-400 border border-white/[0.06]'
+              }`}
+            >
+              <span>{s.step}.</span>
+              <span>{s.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
-          {errorMsg}
+        <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{errorMsg}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Step 1: Institutions & Parties */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Building className="w-4 h-4 text-[#0070e0]" />
-              <span>1. Originating & Beneficiary Institutions</span>
-            </h3>
-            <span className="text-xs text-slate-400 font-medium">Bilateral Clearing Rails</span>
-          </div>
+        {/* Step 1: Corridor & Counterparty Details */}
+        {currentStep === 1 && (
+          <div className="bg-[#10121d] border border-white/[0.08] rounded-2xl p-6 shadow-card-dark space-y-5 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Building className="w-4 h-4 text-violet-400" />
+                Step 1: Financial Institutions &amp; Counterparties
+              </span>
+              <span className="text-xs text-slate-400 font-mono">Bilateral Clearing</span>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Origin Bank Card */}
-            <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                Originating Bank (Sender)
-              </label>
-              <select
-                value={senderBank}
-                onChange={(e) => handleSenderChange(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium shadow-2xs"
-              >
-                {INSTITUTIONS.map((inst) => (
-                  <option key={inst.code} value={inst.code}>
-                    {inst.code} — {inst.name} ({inst.country} • {inst.rail})
-                  </option>
-                ))}
-              </select>
-
-              <div>
-                <label className="text-[11px] font-semibold text-slate-500 block mb-1">
-                  Originator Legal Entity
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Originating Bank */}
+              <div className="space-y-3 p-4 rounded-xl bg-[#141726] border border-white/[0.06]">
+                <label className="text-xs font-bold text-slate-300 block">
+                  Originating Financial Institution
                 </label>
-                <input
-                  type="text"
-                  value={senderName}
-                  onChange={(e) => setSenderName(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] shadow-2xs"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Destination Bank Card */}
-            <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                Beneficiary Bank (Receiver)
-              </label>
-              <select
-                value={receiverBank}
-                onChange={(e) => handleReceiverChange(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium shadow-2xs"
-              >
-                {INSTITUTIONS.filter((inst) => inst.code !== senderBank).map((inst) => (
-                  <option key={inst.code} value={inst.code}>
-                    {inst.code} — {inst.name} ({inst.country} • {inst.rail})
-                  </option>
-                ))}
-              </select>
-
-              <div>
-                <label className="text-[11px] font-semibold text-slate-500 block mb-1">
-                  Beneficiary Legal Entity
-                </label>
-                <input
-                  type="text"
-                  value={receiverName}
-                  onChange={(e) => setReceiverName(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] shadow-2xs"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Step 2: Transfer Amount & Currency */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Coins className="w-4 h-4 text-[#0070e0]" />
-              <span>2. Transfer Amount & Settlement Currency</span>
-            </h3>
-            <span className="text-xs text-slate-400 font-medium">Spot FX Conversion</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1.5">
-                Principal Transfer Amount ({currency})
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">
-                  {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : 'S$'}
-                </span>
-                <input
-                  type="number"
-                  min="100"
-                  max="1000000"
-                  step="500"
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-base font-bold rounded-xl pl-9 pr-4 py-3 focus:outline-none focus:border-[#0070e0] focus:bg-white transition-all shadow-2xs"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1.5">
-                Estimated Target Settlement ({targetCurrency})
-              </label>
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-base font-bold text-slate-900 flex items-center justify-between">
-                <span>
-                  {targetCurrency} {Number(estimatedTargetAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </span>
-                <span className="text-xs font-normal text-slate-500">
-                  Rate: 1 {currency} = {exchangeRate} {targetCurrency}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Step 3: Route Estimate & Cost Assumptions (Screen 3 Requirement) */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Network className="w-4 h-4 text-[#0070e0]" />
-              <span>3. Route Estimate & Settlement Assumptions</span>
-            </h3>
-            <span className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full font-semibold">
-              OR-Tools MIP Solver Active
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estimated Base Fee</span>
-              <span className="text-lg font-bold text-slate-900 block mt-1">${estimatedFeeUSD.toFixed(2)} USD</span>
-              <span className="text-[10px] text-slate-500 mt-0.5 block">Correspondent Hop Cost</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">FX Spread Margin</span>
-              <span className="text-lg font-bold text-slate-900 block mt-1">{estimatedSpreadBps} bps</span>
-              <span className="text-[10px] text-slate-500 mt-0.5 block">Optimized Liquidity Spread</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Settlement Window</span>
-              <span className="text-lg font-bold text-slate-900 block mt-1">{estimatedMinutes} Minutes</span>
-              <span className="text-[10px] text-slate-500 mt-0.5 block">RTGS Finality Window</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Step 4: AI Fraud & Compliance Screening (Synthetic Benchmark) */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>4. AI Fraud Model & Compliance Screening</span>
-            </h3>
-            <span className="text-xs text-slate-500 font-mono">
-              Model: bolewara/credit-card-fraud-detector
-            </span>
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200 text-xs text-slate-700 leading-relaxed">
-            <span className="font-bold text-[#0070e0] mr-1">Benchmark Vector Notice:</span>
-            The pre-trained LightGBM classifier requires 29 specific PCA latent features (<code className="bg-white px-1 py-0.5 rounded text-slate-800 font-mono text-[11px]">V1..V28, Amount</code>). Ordinary wire parameters (BIC, country) are not mapped to PCA components. Choose a synthetic benchmark vector below to demonstrate model inference:
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            {FIXTURES.map((fixture) => {
-              const isSelected = benchmarkKey === fixture.key;
-              return (
-                <div
-                  key={fixture.key}
-                  onClick={() => setBenchmarkKey(fixture.key)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-                    isSelected
-                      ? 'bg-blue-50/60 border-[#0070e0] shadow-xs ring-1 ring-[#0070e0]'
-                      : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">{fixture.title}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${fixture.badgeColor}`}>
-                        {fixture.badge}
+                <div className="space-y-2">
+                  {INSTITUTIONS.map((inst) => (
+                    <div
+                      key={inst.code}
+                      onClick={() => handleSenderChange(inst.code)}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                        senderBank === inst.code
+                          ? 'bg-[#1a1e35] border-violet-500 text-white shadow-[0_0_12px_rgba(139,92,246,0.15)]'
+                          : 'bg-[#10121e] border-white/[0.06] text-slate-400 hover:border-white/20'
+                      }`}
+                    >
+                      <div>
+                        <span className="font-mono text-xs font-bold text-white block">
+                          {inst.code}
+                        </span>
+                        <span className="text-[11px] text-slate-400 block">{inst.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-violet-300">
+                        {inst.currency} ({inst.rail})
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                      {fixture.description}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                    <span className="font-semibold text-slate-600">{isSelected ? '✓ Selected' : 'Click to test'}</span>
-                    <span className="font-mono text-slate-400">{fixture.key}</span>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                    Originating Entity Name
+                  </label>
+                  <input
+                    type="text"
+                    value={senderName}
+                    onChange={(e) => setSenderName(e.target.value)}
+                    required
+                    className="w-full bg-[#10121d] border border-white/[0.08] text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-violet-500/50"
+                  />
+                </div>
+              </div>
+
+              {/* Beneficiary Bank */}
+              <div className="space-y-3 p-4 rounded-xl bg-[#141726] border border-white/[0.06]">
+                <label className="text-xs font-bold text-slate-300 block">
+                  Beneficiary Financial Institution
+                </label>
+                <div className="space-y-2">
+                  {INSTITUTIONS.map((inst) => (
+                    <div
+                      key={inst.code}
+                      onClick={() => handleReceiverChange(inst.code)}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                        receiverBank === inst.code
+                          ? 'bg-[#1a1e35] border-violet-500 text-white shadow-[0_0_12px_rgba(139,92,246,0.15)]'
+                          : 'bg-[#10121e] border-white/[0.06] text-slate-400 hover:border-white/20'
+                      }`}
+                    >
+                      <div>
+                        <span className="font-mono text-xs font-bold text-white block">
+                          {inst.code}
+                        </span>
+                        <span className="text-[11px] text-slate-400 block">{inst.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-violet-300">
+                        {inst.currency} ({inst.rail})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                    Beneficiary Entity Name
+                  </label>
+                  <input
+                    type="text"
+                    value={receiverName}
+                    onChange={(e) => setReceiverName(e.target.value)}
+                    required
+                    className="w-full bg-[#10121d] border border-white/[0.08] text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-violet-500/50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-3">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.25)]"
+              >
+                <span>Continue to Amount &amp; FX</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Amount, Real-Time FX & Routing Constraints */}
+        {currentStep === 2 && (
+          <div className="bg-[#10121d] border border-white/[0.08] rounded-2xl p-6 shadow-card-dark space-y-5 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-violet-400" />
+                Step 2: Transfer Amount, FX Rate &amp; OR-Tools Strategy
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                {currency} → {targetCurrency}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
+                    Principal Transfer Amount ({currency})
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-sm font-bold text-slate-400">
+                      {currency}
+                    </span>
+                    <input
+                      type="number"
+                      min={100}
+                      step={100}
+                      value={amount}
+                      onChange={(e) => setAmount(Number(e.target.value))}
+                      required
+                      className="w-full bg-[#141726] border border-white/[0.08] text-base font-bold text-white font-mono rounded-xl pl-16 pr-4 py-2.5 focus:outline-none focus:border-violet-500/50"
+                    />
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Submit Action Pill Button */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            className="px-6 py-2.5 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-8 py-3 rounded-full text-sm font-semibold bg-[#0070e0] hover:bg-[#005cb8] text-white shadow-sm transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
-          >
-            <Send className="w-4 h-4" />
-            <span>{submitting ? 'Initiating Pipeline...' : 'Confirm & Initiate Transfer'}</span>
-          </button>
-        </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
+                    OR-Tools Optimization Objective
+                  </label>
+                  <select
+                    value={routingPriority}
+                    onChange={(e) => setRoutingPriority(e.target.value)}
+                    className="w-full bg-[#141726] border border-white/[0.08] text-xs text-white rounded-xl px-3 py-2.5 focus:outline-none focus:border-violet-500/50"
+                  >
+                    <option value="BALANCED">Balanced (Cost + Time Optimization)</option>
+                    <option value="SPEED">Speed First (Direct RTGS Minimum Window)</option>
+                    <option value="COST">Cost First (Minimum Interbank Hop Fees)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Live FX & Corridor Cost Preview */}
+              <div className="p-4 rounded-xl bg-[#141726] border border-white/[0.06] space-y-3">
+                <div className="flex items-center justify-between text-xs pb-2 border-b border-white/[0.04]">
+                  <span className="text-slate-400">Exchange Rate:</span>
+                  <span className="font-mono text-white font-semibold">
+                    1 {currency} = {exchangeRate} {targetCurrency}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Beneficiary Receipt:</span>
+                  <span className="font-mono text-emerald-400 font-bold text-sm">
+                    {targetCurrency} {Number(estimatedTargetAmount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Estimated Corridor Fee:</span>
+                  <span className="font-mono text-slate-200">${estimatedFeeUSD} USD</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Estimated Settlement Window:</span>
+                  <span className="font-mono text-violet-300">~{estimatedMinutes} minutes</span>
+                </div>
+                <div className="pt-2 border-t border-white/[0.04] text-[11px] text-slate-400 italic">
+                  Note: Interbank FX rates and corridor fees are simulated for this hackathon prototype.
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between pt-3">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="px-4 py-2 rounded-xl bg-[#141726] hover:bg-[#1a1e32] text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)}
+                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.25)]"
+              >
+                <span>Continue to Risk &amp; Confirmation</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Risk Vector, Funding Mode & Confirmation */}
+        {currentStep === 3 && (
+          <div className="bg-[#10121d] border border-white/[0.08] rounded-2xl p-6 shadow-card-dark space-y-5 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-violet-400" />
+                Step 3: AI Fraud Model Benchmark &amp; Funding Authorization
+              </span>
+              <span className="text-xs text-emerald-400 font-mono">Pre-Flight Review</span>
+            </div>
+
+            {/* Synthetic Vector Selection */}
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-slate-300 block">
+                Select Synthetic Benchmark Feature Vector (Hugging Face Model):
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {FIXTURES.map((fix) => (
+                  <div
+                    key={fix.key}
+                    onClick={() => setBenchmarkKey(fix.key)}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      benchmarkKey === fix.key
+                        ? 'bg-[#181c30] border-violet-500 text-white shadow-[0_0_12px_rgba(139,92,246,0.15)]'
+                        : 'bg-[#141726] border-white/[0.06] text-slate-400 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-bold text-white">{fix.title}</span>
+                    </div>
+                    <span
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border inline-block mb-2 ${fix.badgeColor}`}
+                    >
+                      {fix.badge}
+                    </span>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      {fix.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pre-Flight Summary Review Card */}
+            <div className="p-4 rounded-xl bg-[#141726] border border-white/[0.06] space-y-3">
+              <span className="text-xs font-bold text-white uppercase tracking-wider block">
+                Transfer Pre-Flight Specification
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-400 block">Corridor</span>
+                  <span className="font-mono text-white font-semibold">
+                    {senderBank} → {receiverBank}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block">Amount</span>
+                  <span className="font-mono text-white font-semibold">
+                    {currency} {Number(amount).toLocaleString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block">Target Settlement</span>
+                  <span className="font-mono text-emerald-400 font-semibold">
+                    {targetCurrency} {Number(estimatedTargetAmount).toLocaleString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block">Funding Rails</span>
+                  <span className="font-mono text-sky-400 font-semibold">
+                    PayPal Sandbox
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-between pt-3">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="px-4 py-2 rounded-xl bg-[#141726] hover:bg-[#1a1e32] text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Back</span>
+              </button>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(139,92,246,0.35)] active:scale-95"
+              >
+                <Send className="w-4 h-4" />
+                <span>
+                  {submitting
+                    ? 'Submitting & Evaluating Model...'
+                    : 'Initiate Transfer & Launch Workflow'}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

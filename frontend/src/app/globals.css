@@ -6,8 +6,8 @@
 @import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 :root {
-  --background: #f5f7fa;
-  --foreground: #0f172a;
+  --background: #07080c;
+  --foreground: #f8fafc;
 }
 
 body {
@@ -18,49 +18,70 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom AG Grid Light Fintech Quartz styling */
-.ag-theme-quartz {
-  --ag-background-color: #ffffff;
-  --ag-header-background-color: #f8fafc;
-  --ag-header-foreground-color: #475569;
-  --ag-foreground-color: #0f172a;
-  --ag-border-color: #e2e8f0;
-  --ag-row-border-color: #f1f5f9;
-  --ag-odd-row-background-color: #ffffff;
-  --ag-row-hover-color: #f0f7ff;
-  --ag-selected-row-background-color: #e0f2fe;
+/* Custom AG Grid Dark Theme Quartz overrides */
+.ag-theme-quartz.ag-dark-custom {
+  --ag-background-color: #10121d;
+  --ag-header-background-color: #141726;
+  --ag-header-foreground-color: #94a3b8;
+  --ag-foreground-color: #f1f5f9;
+  --ag-border-color: rgba(255, 255, 255, 0.08);
+  --ag-row-border-color: rgba(255, 255, 255, 0.04);
+  --ag-odd-row-background-color: #10121d;
+  --ag-row-hover-color: rgba(139, 92, 246, 0.08);
+  --ag-selected-row-background-color: rgba(139, 92, 246, 0.16);
   --ag-font-family: inherit;
   --ag-font-size: 13px;
   --ag-grid-size: 8px;
   --ag-cell-horizontal-padding: 16px;
+  --ag-active-color: #8b5cf6;
+  --ag-range-selection-border-color: #8b5cf6;
+  --ag-range-selection-background-color: rgba(139, 92, 246, 0.15);
+  --ag-header-column-resize-handle-color: rgba(255, 255, 255, 0.2);
+  --ag-input-focus-border-color: #8b5cf6;
+  --ag-input-focus-box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
 }
 
-.ag-theme-quartz .ag-header-cell {
+.ag-theme-quartz.ag-dark-custom .ag-header-cell {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 11px;
-  color: #64748b;
+  color: #94a3b8;
 }
 
-.ag-theme-quartz .ag-root-wrapper {
+.ag-theme-quartz.ag-dark-custom .ag-root-wrapper {
   border-radius: 1rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #10121d;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 }
 
-/* Smooth custom scrollbars */
+.ag-theme-quartz.ag-dark-custom .ag-paging-panel {
+  color: #94a3b8;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: #141726;
+}
+
+.ag-theme-quartz.ag-dark-custom .ag-paging-button {
+  color: #94a3b8;
+}
+
+.ag-theme-quartz.ag-dark-custom .ag-paging-button:hover {
+  color: #ffffff;
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #0a0b12;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #1e2238;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #343b5e;
 }

@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Info,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import RouteVisualizer from '../../components/RouteVisualizer';
 
@@ -52,21 +53,21 @@ export default function RoutingPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Title */}
-      <div className="pb-3 border-b border-slate-200">
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          <Network className="w-6 h-6 text-[#0070e0]" />
+      <div className="pb-3 border-b border-white/[0.08]">
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+          <Network className="w-5 h-5 text-violet-400" />
           <span>Google OR-Tools Interbank Routing Engine</span>
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-slate-400 mt-1">
           Mixed-Integer Linear Programming (MILP) solver optimizing correspondent banking hops over liquidity reserves, FX spread margins, and settlement cutoff windows.
         </p>
       </div>
 
       {/* Simulator Inputs */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-5">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <Play className="w-4 h-4 text-[#0070e0]" />
+      <div className="p-6 rounded-2xl bg-[#10121d] border border-white/[0.08] shadow-card-dark space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <Play className="w-4 h-4 text-violet-400" />
             <span>Corridor Solver Parameters</span>
           </h3>
           <span className="text-xs text-slate-400 font-medium">Constraints: Liquidity, Cutoff, FX Spread</span>
@@ -74,11 +75,11 @@ export default function RoutingPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Origin Institution</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">Origin Institution</label>
             <select
               value={source}
               onChange={(e) => setSource(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium"
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-violet-500 font-medium"
             >
               <option value="GSB_US">GSB_US (Global Settlement Bank)</option>
               <option value="EUROT_DE">EUROT_DE (EuroTransact AG)</option>
@@ -87,11 +88,11 @@ export default function RoutingPage() {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Beneficiary Institution</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">Beneficiary Institution</label>
             <select
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium"
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-violet-500 font-medium"
             >
               <option value="EUROT_DE">EUROT_DE (EuroTransact AG)</option>
               <option value="PACIFIC_SG">PACIFIC_SG (Pacific Rim Financial)</option>
@@ -100,26 +101,25 @@ export default function RoutingPage() {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Transfer Amount (USD)</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">Transfer Amount (USD)</label>
             <input
               type="number"
-              step="5000"
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#0070e0]"
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:outline-none focus:border-violet-500 font-medium"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-600 block mb-1">Optimization Goal</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">Objective Priority</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#0070e0] font-medium"
+              className="w-full bg-[#141726] border border-white/[0.08] rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-violet-500 font-medium"
             >
-              <option value="BALANCED">Balanced Cost & Speed</option>
-              <option value="LEAST_COST">Min-Cost Corridor</option>
-              <option value="FASTEST">Lowest Settlement Time</option>
+              <option value="BALANCED">Balanced (Cost + Time)</option>
+              <option value="SPEED">Speed First (Min Minutes)</option>
+              <option value="COST">Cost First (Min Fees)</option>
             </select>
           </div>
         </div>
@@ -128,52 +128,54 @@ export default function RoutingPage() {
           <button
             onClick={handleOptimize}
             disabled={loading}
-            className="px-6 py-2.5 rounded-full text-xs font-semibold bg-[#0070e0] hover:bg-[#005cb8] text-white flex items-center gap-2 shadow-xs transition-all active:scale-95"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.3)] active:scale-95"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{loading ? 'Solving Linear Program...' : 'Calculate Optimal Corridor'}</span>
+            <Zap className="w-4 h-4" />
+            <span>{loading ? 'Solving Corridor Matrix...' : 'Run OR-Tools Solver'}</span>
           </button>
         </div>
       </div>
 
-      {/* Results View */}
+      {/* Solver Results */}
       {routeResult && (
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Optimal Route Result (Status: {routeResult.status})</span>
+        <div className="p-6 rounded-2xl bg-[#10121d] border border-white/[0.08] shadow-card-dark space-y-4 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Optimal Route Selected</span>
             </h3>
-            <span className="text-xs font-mono text-slate-500">
-              Solver: Google OR-Tools CBC/SCIP
+            <span className="text-xs font-mono text-violet-300">
+              Solver Time: {routeResult.solver_time_ms ? `${routeResult.solver_time_ms.toFixed(1)}ms` : '<2ms'}
             </span>
           </div>
 
           <RouteVisualizer
-            routeNodes={routeResult.route}
-            totalCostUSD={routeResult.total_cost_usd}
+            nodes={routeResult.selected_route || []}
+            costUSD={routeResult.estimated_cost_usd}
             estimatedMinutes={routeResult.estimated_minutes}
             reasoning={routeResult.reasoning}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Correspondent Hops</span>
-              <span className="text-lg font-bold text-slate-900 block mt-0.5">{routeResult.route?.length} Nodes</span>
+          {routeResult.candidate_routes && (
+            <div className="space-y-2 pt-3 border-t border-white/[0.06]">
+              <span className="text-xs font-semibold text-slate-300 block">
+                Evaluated Alternative Corridors:
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                {routeResult.candidate_routes.map((cand: any, i: number) => (
+                  <div key={i} className="p-3 rounded-xl bg-[#141726] border border-white/[0.04] space-y-1">
+                    <div className="flex items-center justify-between font-mono">
+                      <span className="text-white font-bold">{cand.path.join(' → ')}</span>
+                      <span className="text-slate-400">${cand.cost_usd}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      Window: {cand.time_minutes}m • Liquidity Score: {(cand.liquidity_score * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Base Transfer Fee</span>
-              <span className="text-lg font-bold text-slate-900 block mt-0.5">${routeResult.breakdown?.base_fee_usd?.toFixed(2)}</span>
-            </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">FX Spread Friction</span>
-              <span className="text-lg font-bold text-slate-900 block mt-0.5">${routeResult.breakdown?.fx_spread_cost_usd?.toFixed(2)}</span>
-            </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Effective Spread</span>
-              <span className="text-lg font-bold text-slate-900 block mt-0.5">{routeResult.breakdown?.fx_spread_bps} bps</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>
