@@ -97,8 +97,8 @@ Cross-border interbank transfers currently rely on legacy correspondent banking 
 
 ### 1. Clone & Configure Environment
 ```bash
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/transnational.git
-cd transnational
+git clone https://github.com/pdbmnm7sxy-svg/PayPal_2.0.git
+cd PayPal_2.0
 
 # Copy environment configuration template
 cp .env.example .env
