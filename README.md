@@ -17,7 +17,7 @@
 - **Team Name:** `Team ERROR`
 - **Team Members:**
   - **Chirantan Samuel Chetan** (Team Lead)
-  - **Ashish Singh** (Full-Stack & Distributed Systems Engineer)
+  - **Ashish Singh** (Full-Stack & Backend)
 
 ---
 
