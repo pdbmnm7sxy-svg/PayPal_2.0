@@ -10,15 +10,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        dark: {
-          950: '#07080c', // Main page background
-          900: '#0a0b12', // Sidebar & Topbar background
-          850: '#10121d', // Card and surface base
-          800: '#141726', // Elevated card surface
-          750: '#1a1e32', // Hover card surface
-          700: '#232842', // Card border
-          600: '#343b5e',
-          500: '#48527d',
+        space: {
+          950: '#040507', // Deep cosmic void
+          900: '#07080e', // Primary surface
+          850: '#0c0e18', // Orbital layer
+          800: '#111422', // HUD panel
+          750: '#171b2e', // Elevated HUD
+          700: '#1e243c', // Border subtle
+          600: '#2b3354',
+          500: '#3e4875',
         },
         brand: {
           50: '#f5f3ff',
@@ -26,27 +26,54 @@ const config: Config = {
           200: '#ddd6fe',
           300: '#c4b5fd',
           400: '#a78bfa',
-          500: '#8b5cf6', // Primary violet
-          600: '#7c3aed', // Deep violet
+          500: '#8b5cf6', // Electric violet
+          600: '#7c3aed',
           700: '#6d28d9',
           800: '#5b21b6',
           900: '#4c1d95',
           950: '#2e1065',
         },
-        accent: {
-          purple: '#a855f7',
-          indigo: '#6366f1',
+        cosmic: {
           cyan: '#06b6d4',
+          violet: '#8b5cf6',
+          purple: '#a855f7',
           emerald: '#10b981',
           amber: '#f59e0b',
           rose: '#f43f5e',
         },
       },
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        editorial: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+      },
       boxShadow: {
-        'glow-sm': '0 0 10px rgba(139, 92, 246, 0.2)',
-        'glow-md': '0 0 20px rgba(139, 92, 246, 0.25)',
-        'glow-lg': '0 0 30px rgba(139, 92, 246, 0.35)',
-        'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3)',
+        'glow-violet': '0 0 25px rgba(139, 92, 246, 0.35)',
+        'glow-cyan': '0 0 25px rgba(6, 182, 212, 0.35)',
+        'glow-emerald': '0 0 25px rgba(16, 185, 129, 0.35)',
+        'glow-amber': '0 0 25px rgba(245, 158, 11, 0.35)',
+        'orbital-ring': '0 0 50px rgba(139, 92, 246, 0.15), inset 0 0 30px rgba(139, 92, 246, 0.1)',
+        'dock': '0 20px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+      },
+      animation: {
+        'spin-slow': 'spin 40s linear infinite',
+        'spin-reverse': 'spin-reverse 50s linear infinite',
+        'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        'spin-reverse': {
+          '0%': { transform: 'rotate(360deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+          '50%': { opacity: '0.9', transform: 'scale(1.04)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
       },
     },
   },

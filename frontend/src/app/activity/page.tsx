@@ -9,21 +9,20 @@ import {
   Clock,
   AlertTriangle,
   ArrowRight,
-  Send,
-  Building,
+  BookOpen,
   RotateCcw,
-  SlidersHorizontal,
+  Sparkles,
   Table as TableIcon,
   ListFilter,
   Layers,
-  Sparkles,
+  FileText,
 } from 'lucide-react';
 import { Payment } from '../../types';
 import { api } from '../../lib/api';
 import TransactionTable from '../../components/TransactionTable';
 import TransferDrawer from '../../components/TransferDrawer';
 
-export default function ActivityPage() {
+export default function ActivityGazettePage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
@@ -32,8 +31,7 @@ export default function ActivityPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'SETTLED' | 'PENDING' | 'HELD'>('ALL');
   const [currencyFilter, setCurrencyFilter] = useState<'ALL' | 'USD' | 'EUR' | 'SGD'>('ALL');
-  const [dateRange, setDateRange] = useState<'90_DAYS' | '30_DAYS' | 'ALL'>('90_DAYS');
-  const [viewMode, setViewMode] = useState<'FEED' | 'GRID'>('FEED');
+  const [viewMode, setViewMode] = useState<'GAZETTE' | 'GRID'>('GAZETTE');
 
   useEffect(() => {
     api
@@ -43,7 +41,7 @@ export default function ActivityPage() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Failed to load activity:', err);
+        console.error('Failed to load gazette activity:', err);
         setLoading(false);
       });
   }, []);
@@ -80,278 +78,239 @@ export default function ActivityPage() {
     });
   }, [payments, searchQuery, statusFilter, currencyFilter]);
 
-  // Group filtered payments chronologically
-  const groupedPayments = useMemo(() => {
-    const today: Payment[] = [];
-    const thisWeek: Payment[] = [];
-    const earlier: Payment[] = [];
-
-    const now = new Date();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const sevenDays = 7 * oneDay;
-
-    filteredPayments.forEach((p) => {
-      const pDate = new Date(p.createdAt);
-      const diff = now.getTime() - pDate.getTime();
-      if (diff < oneDay) {
-        today.push(p);
-      } else if (diff < sevenDays) {
-        thisWeek.push(p);
-      } else {
-        earlier.push(p);
-      }
-    });
-
-    return { today, thisWeek, earlier };
+  // Featured dossier item (e.g. first held item or first item)
+  const featuredDossier = useMemo(() => {
+    return filteredPayments.find((p) => p.status === 'RISK_HELD') || filteredPayments[0] || null;
   }, [filteredPayments]);
 
-  const renderPaymentItem = (payment: Payment) => {
-    const isSettled = payment.status === 'SETTLED' || payment.status === 'RECONCILED';
-    const isHeld = payment.status === 'RISK_HELD' || payment.status === 'SETTLEMENT_FAILED';
-    const isPending = !isSettled && !isHeld;
-
-    return (
-      <div
-        key={payment.id}
-        onClick={() => setSelectedPayment(payment)}
-        className="p-4 rounded-xl bg-[#121422] hover:bg-[#16192b] border border-white/[0.06] hover:border-violet-500/30 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-card-dark"
-      >
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold font-mono transition-transform group-hover:scale-105 ${
-              isSettled
-                ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
-                : isHeld
-                ? 'bg-rose-500/15 border border-rose-500/30 text-rose-400'
-                : 'bg-violet-500/15 border border-violet-500/30 text-violet-300'
-            }`}
-          >
-            {payment.currency}
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white group-hover:text-violet-300 transition-colors truncate">
-                {payment.senderName}
-              </span>
-              <span className="text-[10px] text-slate-400 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.06] font-mono">
-                {payment.senderBank} → {payment.receiverBank}
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
-              <span>{new Date(payment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-              <span>•</span>
-              <span className="font-mono text-slate-400">{payment.reference}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="text-right shrink-0">
-          <div className="text-xs font-bold text-white font-mono">
-            {payment.currency} {Number(payment.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          <div className="text-[10px] mt-0.5">
-            <span
-              className={`font-semibold px-2 py-0.5 rounded-full border text-[10px] ${
-                isSettled
-                  ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                  : isHeld
-                  ? 'bg-rose-500/15 border-rose-500/30 text-rose-300'
-                  : 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-              }`}
-            >
-              {payment.status}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Title & View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-white/[0.08] gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            Transfers &amp; Settlement Activity
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Historical payment ledger with real-time state tracking, PayPal Sandbox verification, and Fabric block certification.
-          </p>
+    <div className="space-y-8 animate-in fade-in duration-300">
+      {/* Broadsheet Masthead */}
+      <div className="border-b-2 border-white/20 pb-5 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="text-[10px] font-mono tracking-widest text-violet-400 uppercase font-bold">
+              TRANSNATIONAL CHRONICLE // VOLUME 2026.11
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tighter mt-1 font-editorial uppercase">
+              The Settlement Gazette
+            </h1>
+            <p className="text-xs text-slate-400 mt-1 font-mono">
+              Consortium Ledger State &amp; Interbank Payment Records Stream
+            </p>
+          </div>
+
+          {/* View Mode Switcher */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-space-900 border border-white/[0.08]">
+            <button
+              onClick={() => setViewMode('GAZETTE')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${
+                viewMode === 'GAZETTE'
+                  ? 'bg-violet-600 text-white shadow-glow-violet'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Broadsheet</span>
+            </button>
+            <button
+              onClick={() => setViewMode('GRID')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${
+                viewMode === 'GRID'
+                  ? 'bg-violet-600 text-white shadow-glow-violet'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <TableIcon className="w-3.5 h-3.5" />
+              <span>Full AG Grid</span>
+            </button>
+          </div>
         </div>
 
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-1.5 bg-[#10121d] p-1 rounded-xl border border-white/[0.08]">
-          <button
-            onClick={() => setViewMode('FEED')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              viewMode === 'FEED'
-                ? 'bg-violet-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ListFilter className="w-3.5 h-3.5" />
-            <span>Activity Feed</span>
-          </button>
-          <button
-            onClick={() => setViewMode('GRID')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              viewMode === 'GRID'
-                ? 'bg-violet-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <TableIcon className="w-3.5 h-3.5" />
-            <span>AG Grid Table</span>
-          </button>
+        {/* Dynamic Filter Ticker */}
+        <div className="mt-5 pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <input
+              type="text"
+              placeholder="Search reference, institution, counterparty..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-space-900 border border-white/[0.08] rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-violet-500 placeholder:text-slate-500 font-mono"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {(['ALL', 'SETTLED', 'PENDING', 'HELD'] as const).map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-mono border transition-all ${
+                  statusFilter === st
+                    ? 'bg-violet-500/20 border-violet-500 text-violet-300 font-bold'
+                    : 'bg-space-900 border-white/[0.06] text-slate-400 hover:border-white/20'
+                }`}
+              >
+                {st}
+              </button>
+            ))}
+
+            {(['ALL', 'USD', 'EUR', 'SGD'] as const).map((curr) => (
+              <button
+                key={curr}
+                onClick={() => setCurrencyFilter(curr)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-mono border transition-all ${
+                  currencyFilter === curr
+                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
+                    : 'bg-space-900 border-white/[0.06] text-slate-400 hover:border-white/20'
+                }`}
+              >
+                {curr}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Search Bar & Filter Chips */}
-      <div className="bg-[#10121d] border border-white/[0.08] rounded-2xl p-4 sm:p-5 shadow-card-dark space-y-4">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search by counterparty name, reference ID, or bank code..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#141726] border border-white/[0.08] text-xs text-white rounded-xl pl-11 pr-4 py-2.5 focus:outline-none focus:border-violet-500/50 focus:bg-[#181c2f] transition-all placeholder:text-slate-400"
-          />
-        </div>
-
-        {/* Filter Chips Bar */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1">
-            Filter by:
-          </span>
-
-          {/* Date Filter */}
-          <button
-            onClick={() =>
-              setDateRange(
-                dateRange === '90_DAYS' ? '30_DAYS' : dateRange === '30_DAYS' ? 'ALL' : '90_DAYS',
-              )
-            }
-            className="px-3 py-1 rounded-full text-xs font-medium bg-[#141726] border border-white/[0.08] text-slate-200 hover:border-violet-500/40 transition-all flex items-center gap-1.5"
-          >
-            <Clock className="w-3 h-3 text-violet-400" />
-            <span>
-              Date:{' '}
-              {dateRange === '90_DAYS'
-                ? 'Last 90 days'
-                : dateRange === '30_DAYS'
-                ? 'Last 30 days'
-                : 'All Time'}
-            </span>
-          </button>
-
-          {/* Status Filter Pills */}
-          {(['ALL', 'SETTLED', 'PENDING', 'HELD'] as const).map((st) => (
-            <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                statusFilter === st
-                  ? 'bg-violet-600/20 border-violet-500 text-violet-300 font-semibold shadow-[0_0_8px_rgba(139,92,246,0.2)]'
-                  : 'bg-[#141726] border-white/[0.08] text-slate-300 hover:border-white/20'
-              }`}
-            >
-              Status: {st}
-            </button>
-          ))}
-
-          {/* Currency Filter Pills */}
-          {(['ALL', 'USD', 'EUR', 'SGD'] as const).map((curr) => (
-            <button
-              key={curr}
-              onClick={() => setCurrencyFilter(curr)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                currencyFilter === curr
-                  ? 'bg-violet-600/20 border-violet-500 text-violet-300 font-semibold shadow-[0_0_8px_rgba(139,92,246,0.2)]'
-                  : 'bg-[#141726] border-white/[0.08] text-slate-300 hover:border-white/20'
-              }`}
-            >
-              {curr === 'ALL' ? 'All Currencies' : curr}
-            </button>
-          ))}
-
-          {(searchQuery || statusFilter !== 'ALL' || currencyFilter !== 'ALL') && (
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('ALL');
-                setCurrencyFilter('ALL');
-              }}
-              className="text-[11px] text-violet-400 hover:underline flex items-center gap-1 ml-auto"
-            >
-              <RotateCcw className="w-3 h-3" />
-              Reset filters
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Main View Area */}
-      {loading ? (
-        <div className="p-12 text-center text-xs text-slate-400 bg-[#10121d] rounded-2xl border border-white/[0.08]">
-          Loading activity records from PostgreSQL &amp; Hyperledger Fabric...
-        </div>
-      ) : viewMode === 'GRID' ? (
+      {/* Main Viewport */}
+      {viewMode === 'GRID' ? (
         <TransactionTable
           payments={filteredPayments}
           onSelectPayment={(p) => setSelectedPayment(p)}
-          title="Operational Activity Ledger"
-          subtitle={`Displaying ${filteredPayments.length} transactions in AG Grid`}
+          title="Consortium Clearing Records"
+          subtitle={`Auditing ${filteredPayments.length} transactions through AG Grid Community`}
         />
-      ) : filteredPayments.length === 0 ? (
-        <div className="p-12 text-center text-xs text-slate-400 bg-[#10121d] rounded-2xl border border-white/[0.08] space-y-2">
-          <p className="text-slate-300 font-semibold">No transactions found</p>
-          <p>No activity matches your active search and filter criteria.</p>
-        </div>
       ) : (
-        <div className="space-y-6">
-          {/* Today Group */}
-          {groupedPayments.today.length > 0 && (
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Today
+        /* Asymmetric Editorial Broadsheet Layout (Concept B) */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column: Featured Investigation Dossier (5 cols) */}
+          {featuredDossier && (
+            <div className="lg:col-span-5 p-6 rounded-3xl bg-space-900 border border-white/10 shadow-card-dark space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-violet-400 font-bold">
+                  01 // CASE DOSSIER
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
+                  {featuredDossier.status}
+                </span>
               </div>
-              <div className="space-y-2.5">
-                {groupedPayments.today.map(renderPaymentItem)}
+
+              <div>
+                <span className="font-mono text-xs text-slate-400 block">
+                  REF: {featuredDossier.reference}
+                </span>
+                <h3 className="text-xl font-black text-white font-editorial mt-1 leading-tight">
+                  {featuredDossier.senderName}
+                </h3>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                  Route: {featuredDossier.senderBank} ({featuredDossier.senderCountry}) → {featuredDossier.receiverBank} ({featuredDossier.receiverCountry})
+                </p>
               </div>
+
+              <div className="p-4 rounded-2xl bg-space-850 border border-white/[0.06] space-y-2 text-xs font-mono">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Principal Volume:</span>
+                  <span className="text-white font-bold">
+                    {featuredDossier.currency} {Number(featuredDossier.amount).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Target Settlement:</span>
+                  <span className="text-emerald-400 font-bold">
+                    {featuredDossier.targetCurrency} {Number(featuredDossier.targetAmount).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">LightGBM Fraud Score:</span>
+                  <span className="text-rose-400 font-bold">
+                    {(Number(featuredDossier.fraudScore) * 100).toFixed(3)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Fabric Block Cert:</span>
+                  <span className="text-violet-300">
+                    {featuredDossier.fabricBlockHash ? `${featuredDossier.fabricBlockHash.substring(0, 10)}...` : 'Pending'}
+                  </span>
+                </div>
+              </div>
+
+              {featuredDossier.routeReasoning && (
+                <blockquote className="p-3.5 rounded-xl bg-space-850 border-l-2 border-violet-500 text-xs text-slate-300 italic font-sans leading-relaxed">
+                  &ldquo;{featuredDossier.routeReasoning}&rdquo;
+                </blockquote>
+              )}
+
+              <button
+                onClick={() => setSelectedPayment(featuredDossier)}
+                className="w-full py-2.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs font-mono transition-all flex items-center justify-center gap-2 shadow-glow-violet"
+              >
+                <span>Inspect Full Case Timeline</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
 
-          {/* This Week Group */}
-          {groupedPayments.thisWeek.length > 0 && (
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Last 7 Days
-              </div>
-              <div className="space-y-2.5">
-                {groupedPayments.thisWeek.map(renderPaymentItem)}
-              </div>
+          {/* Right Column: Editorial Record Ledger Stream (7 cols) */}
+          <div className="lg:col-span-7 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold">
+                02 // CHRONOLOGICAL LEDGER DISPATCHES
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">
+                {filteredPayments.length} Verified Entries
+              </span>
             </div>
-          )}
 
-          {/* Earlier Group */}
-          {groupedPayments.earlier.length > 0 && (
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Earlier
-              </div>
-              <div className="space-y-2.5">
-                {groupedPayments.earlier.map(renderPaymentItem)}
-              </div>
+            <div className="space-y-2.5">
+              {filteredPayments.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => setSelectedPayment(p)}
+                  className="p-4 rounded-2xl bg-space-900 hover:bg-space-850 border border-white/[0.06] hover:border-violet-500/40 transition-all cursor-pointer flex items-center justify-between gap-4 group"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-space-800 border border-white/[0.08] flex items-center justify-center font-mono font-bold text-xs text-violet-300 shrink-0 group-hover:scale-105 transition-transform">
+                      {p.currency}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs truncate group-hover:text-violet-300 transition-colors font-sans">
+                          {p.senderName}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          {p.senderBank} → {p.receiverBank}
+                        </span>
+                      </div>
+                      <div className="text-[11px] font-mono text-slate-400 mt-0.5">
+                        {p.reference} • {new Date(p.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <div className="font-mono text-xs font-bold text-white">
+                      {p.currency} {Number(p.amount).toLocaleString()}
+                    </div>
+                    <span
+                      className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border mt-1 inline-block ${
+                        p.status === 'SETTLED' || p.status === 'RECONCILED'
+                          ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                          : p.status === 'RISK_HELD'
+                          ? 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+                          : 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* Slide-over Transaction Details Drawer */}
+      {/* Spatial Transaction Details Drawer */}
       <TransferDrawer
         payment={selectedPayment}
         onClose={() => setSelectedPayment(null)}

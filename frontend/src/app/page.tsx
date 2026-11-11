@@ -4,36 +4,31 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   DollarSign,
-  CheckCircle2,
+  Clock,
   AlertTriangle,
-  Layers,
-  Cpu,
-  Plus,
   Building,
   RefreshCw,
-  ArrowRight,
   Send,
-  History,
-  Network,
-  ShieldCheck,
-  TrendingUp,
-  Clock,
+  Radio,
+  Layers,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Payment, DashboardStats, BankNode } from '../types';
 import { api } from '../lib/api';
 import { getSocket } from '../lib/socket';
-import StatCard from '../components/StatCard';
+import OrbitalUniverseView from '../components/OrbitalUniverseView';
 import TransactionTable from '../components/TransactionTable';
 import TransferDrawer from '../components/TransferDrawer';
-import NetworkCorridorMap from '../components/NetworkCorridorMap';
 
-export default function DashboardPage() {
+export default function DashboardUniversePage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [banks, setBanks] = useState<BankNode[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [telemetryOpen, setTelemetryOpen] = useState(true);
 
   const loadData = async () => {
     try {
@@ -46,7 +41,7 @@ export default function DashboardPage() {
       setStats(fetchedStats);
       setBanks(fetchedBanks);
     } catch (e) {
-      console.error('Failed to load dashboard data:', e);
+      console.error('Failed to load universe data:', e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -102,89 +97,133 @@ export default function DashboardPage() {
   }, 0);
 
   return (
-    <div className="space-y-6">
-      {/* Page Title & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            Institutional Payments Dashboard
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Global settlement orchestration across 3 financial institutions with LightGBM fraud evaluation, Google OR-Tools routing, and Hyperledger Fabric audit trails.
-          </p>
+    <div className="space-y-8 animate-in fade-in duration-300">
+      {/* Top Telemetry KPI Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        {/* Metric 1 */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-space-900 border border-white/[0.08] shadow-card-dark relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              Total Volume
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center">
+              <DollarSign className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl sm:text-2xl font-extrabold text-white font-mono">
+            ${((stats?.totalVolumeUSD || 0) / 1000000).toFixed(2)}M
+          </div>
+          <div className="mt-1 text-[11px] text-emerald-400 flex items-center gap-1 font-mono">
+            <span>+12.4%</span>
+            <span className="text-slate-400">wholesale 24h</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={handleManualRefresh}
-            disabled={refreshing}
-            className="p-2 rounded-xl bg-[#10121d] border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all"
-            title="Refresh dashboard"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
+        {/* Metric 2 */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-space-900 border border-white/[0.08] shadow-card-dark relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              In-Flight Wires
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+              <Clock className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl sm:text-2xl font-extrabold text-white font-mono">
+            {stats?.activeTransfersCount ?? 4} Active
+          </div>
+          <div className="mt-1 text-[11px] text-amber-400 font-mono">
+            Routing &amp; Settling
+          </div>
+        </div>
 
-          <Link
-            href="/transfers/new"
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.3)] active:scale-95"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>New Transfer</span>
-          </Link>
+        {/* Metric 3 */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-space-900 border border-white/[0.08] shadow-card-dark relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              Compliance Holds
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
+              <AlertTriangle className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl sm:text-2xl font-extrabold text-white font-mono">
+            {stats?.heldTransfersCount ?? 2} Held
+          </div>
+          <div className="mt-1 text-[11px] text-rose-400 font-mono">
+            Model / Sanctions Alert
+          </div>
+        </div>
+
+        {/* Metric 4 */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-space-900 border border-white/[0.08] shadow-card-dark relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              Liquidity Mesh
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+              <Building className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl sm:text-2xl font-extrabold text-white font-mono">
+            ${(totalLiquidityUSD / 1000000).toFixed(1)}M
+          </div>
+          <div className="mt-1 text-[11px] text-emerald-400 font-mono">
+            3 Hubs Synchronized
+          </div>
         </div>
       </div>
 
-      {/* 4 Concise Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Payment Volume"
-          value={`$${((stats?.totalVolumeUSD || 0) / 1000000).toFixed(2)}M`}
-          subtitle="Processed wholesale volume"
-          icon={DollarSign}
-          trend={{ value: '+12.4%', isPositive: true }}
-        />
-
-        <StatCard
-          title="Payments In Flight"
-          value={stats?.activeTransfersCount ?? 4}
-          subtitle="Pending settlement / routing"
-          icon={Clock}
-          badge="In Progress"
-          badgeColor="bg-amber-500/15 text-amber-300 border-amber-500/30"
-        />
-
-        <StatCard
-          title="Fraud & Compliance Holds"
-          value={stats?.heldTransfersCount ?? 2}
-          subtitle="Model or sanctions flagged"
-          icon={AlertTriangle}
-          badge="Action Req"
-          badgeColor="bg-rose-500/15 text-rose-300 border-rose-500/30"
-        />
-
-        <StatCard
-          title="Available Liquidity"
-          value={`$${(totalLiquidityUSD / 1000000).toFixed(1)}M`}
-          subtitle="Reserves across 3 member banks"
-          icon={Building}
-          badge="Reserves Active"
-          badgeColor="bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-        />
-      </div>
-
-      {/* Original Interactive Network Corridor Visualization */}
-      <NetworkCorridorMap banks={banks} />
-
-      {/* Recent Transactions in Dark-Themed AG Grid */}
-      <TransactionTable
+      {/* Cinematic Settlement Universe Viewport */}
+      <OrbitalUniverseView
+        banks={banks}
         payments={payments}
         onSelectPayment={(p) => setSelectedPayment(p)}
-        loading={loading}
-        title="Recent Operations & Settlement Records"
-        subtitle="Live consortium payment state stream synchronized with PostgreSQL and Hyperledger Fabric"
       />
 
-      {/* Slide-over Transaction Details Drawer */}
+      {/* Sliding AG Grid Operations & Telemetry Deck */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
+              Telemetry Record Deck
+            </span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+              AG Grid Community • {payments.length} Transactions
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className="p-1.5 rounded-xl bg-space-900 border border-white/[0.08] text-slate-400 hover:text-white"
+              title="Refresh ledger state"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={() => setTelemetryOpen(!telemetryOpen)}
+              className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-mono"
+            >
+              <span>{telemetryOpen ? 'Collapse Deck' : 'Expand Deck'}</span>
+              {telemetryOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+        </div>
+
+        {telemetryOpen && (
+          <TransactionTable
+            payments={payments}
+            onSelectPayment={(p) => setSelectedPayment(p)}
+            loading={loading}
+            title="Consortium Payment Telemetry Deck"
+            subtitle="Real-time multi-currency settlement stream synchronized across PostgreSQL, LightGBM, and Hyperledger Fabric"
+          />
+        )}
+      </div>
+
+      {/* Spatial Transaction Inspector Drawer */}
       <TransferDrawer
         payment={selectedPayment}
         onClose={() => setSelectedPayment(null)}
